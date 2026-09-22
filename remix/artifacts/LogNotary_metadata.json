@@ -1,0 +1,677 @@
+{
+	"compiler": {
+		"version": "0.8.34+commit.80d5c536"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [],
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "batchId",
+						"type": "string"
+					}
+				],
+				"name": "BatchAlreadyExists",
+				"type": "error"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "batchId",
+						"type": "string"
+					}
+				],
+				"name": "BatchNotFound",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "EmptyStringParameter",
+				"type": "error"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "hostAddress",
+						"type": "address"
+					}
+				],
+				"name": "HostAlreadyRegistered",
+				"type": "error"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "hostAddress",
+						"type": "address"
+					}
+				],
+				"name": "HostNotActive",
+				"type": "error"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "hostAddress",
+						"type": "address"
+					}
+				],
+				"name": "HostNotFound",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "InvalidLogCount",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "InvalidMerkleRoot",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "InvalidZeroAddress",
+				"type": "error"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					}
+				],
+				"name": "OwnableInvalidOwner",
+				"type": "error"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "account",
+						"type": "address"
+					}
+				],
+				"name": "OwnableUnauthorizedAccount",
+				"type": "error"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "string",
+						"name": "batchId",
+						"type": "string"
+					},
+					{
+						"indexed": true,
+						"internalType": "bytes32",
+						"name": "merkleRoot",
+						"type": "bytes32"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "recorder",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "logCount",
+						"type": "uint256"
+					}
+				],
+				"name": "BatchAnchored",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "hostAddress",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "hostname",
+						"type": "string"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "ipAddress",
+						"type": "string"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
+					}
+				],
+				"name": "HostRegistered",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "hostAddress",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "bool",
+						"name": "isActive",
+						"type": "bool"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
+					}
+				],
+				"name": "HostStatusUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "previousOwner",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "newOwner",
+						"type": "address"
+					}
+				],
+				"name": "OwnershipTransferred",
+				"type": "event"
+			},
+			{
+				"inputs": [],
+				"name": "activeHostCount",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"name": "batchMetadata",
+				"outputs": [
+					{
+						"internalType": "bytes32",
+						"name": "merkleRoot",
+						"type": "bytes32"
+					},
+					{
+						"internalType": "address",
+						"name": "recorder",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "logCount",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"name": "batchRoots",
+				"outputs": [
+					{
+						"internalType": "bytes32",
+						"name": "",
+						"type": "bytes32"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getAllHosts",
+				"outputs": [
+					{
+						"internalType": "address[]",
+						"name": "",
+						"type": "address[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getHostCount",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "hostList",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_hostAddress",
+						"type": "address"
+					}
+				],
+				"name": "offboardHost",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "owner",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_hostAddress",
+						"type": "address"
+					}
+				],
+				"name": "reactivateHost",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "_batchId",
+						"type": "string"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "_merkleRoot",
+						"type": "bytes32"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_logCount",
+						"type": "uint256"
+					}
+				],
+				"name": "recordBatchRoot",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_hostAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "_hostname",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "_ipAddress",
+						"type": "string"
+					}
+				],
+				"name": "registerHost",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"name": "registeredHosts",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "hostname",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "ipAddress",
+						"type": "string"
+					},
+					{
+						"internalType": "bool",
+						"name": "isActive",
+						"type": "bool"
+					},
+					{
+						"internalType": "uint256",
+						"name": "registeredAt",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "renounceOwnership",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "totalBatchesAnchored",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "newOwner",
+						"type": "address"
+					}
+				],
+				"name": "transferOwnership",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "_batchId",
+						"type": "string"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "_leaf",
+						"type": "bytes32"
+					},
+					{
+						"internalType": "bytes32[]",
+						"name": "_proof",
+						"type": "bytes32[]"
+					}
+				],
+				"name": "verifyLeafProof",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "isValid",
+						"type": "bool"
+					},
+					{
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "recorder",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"details": "Utilizza Merkle Tree per comprimere le transazioni di log e conservare l'integrità probatoria.",
+			"errors": {
+				"OwnableInvalidOwner(address)": [
+					{
+						"details": "The owner is not a valid owner account. (eg. `address(0)`)"
+					}
+				],
+				"OwnableUnauthorizedAccount(address)": [
+					{
+						"details": "The caller account is not authorized to perform an operation."
+					}
+				]
+			},
+			"kind": "dev",
+			"methods": {
+				"offboardHost(address)": {
+					"params": {
+						"_hostAddress": "L'indirizzo dell'host da disattivare."
+					}
+				},
+				"owner()": {
+					"details": "Returns the address of the current owner."
+				},
+				"reactivateHost(address)": {
+					"params": {
+						"_hostAddress": "L'indirizzo dell'host da riattivare."
+					}
+				},
+				"recordBatchRoot(string,bytes32,uint256)": {
+					"params": {
+						"_batchId": "UUID identificativo del batch.",
+						"_logCount": "Numero di log racchiusi nel batch.",
+						"_merkleRoot": "Radice crittografica dei log contenuti nel batch."
+					}
+				},
+				"registerHost(address,string,string)": {
+					"params": {
+						"_hostAddress": "L'indirizzo del wallet configurato sull'Agent VPS.",
+						"_hostname": "Nome identificativo della macchina (es. \"srv-prod-ssh-01\").",
+						"_ipAddress": "Indirizzo IP del server."
+					}
+				},
+				"renounceOwnership()": {
+					"details": "Leaves the contract without owner. It will not be possible to call `onlyOwner` functions. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby disabling any functionality that is only available to the owner."
+				},
+				"transferOwnership(address)": {
+					"details": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
+				},
+				"verifyLeafProof(string,bytes32,bytes32[])": {
+					"params": {
+						"_batchId": "ID del batch di riferimento.",
+						"_leaf": "Hash (foglia) del log specifico.",
+						"_proof": "Percorso di Merkle generato per la foglia."
+					},
+					"returns": {
+						"isValid": "True se il log è matematicamente integro e certificato.",
+						"recorder": "Indirizzo del server VPS che ha effettuato l'ancoraggio.",
+						"timestamp": "Timestamp del blocco in cui la root è stata ancorata."
+					}
+				}
+			},
+			"title": "LogNotary",
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {
+				"getAllHosts()": {
+					"notice": "Restituisce la lista completa degli indirizzi degli host per le dashboard di visualizzazione."
+				},
+				"getHostCount()": {
+					"notice": "Restituisce il numero totale di server censiti."
+				},
+				"offboardHost(address)": {
+					"notice": "Disattiva un server compromesso o dismesso (offboarding)."
+				},
+				"reactivateHost(address)": {
+					"notice": "Riattiva un host precedentemente disattivato."
+				},
+				"recordBatchRoot(string,bytes32,uint256)": {
+					"notice": "Ancola la Merkle Root calcolata dall'Agent VPS su L2."
+				},
+				"registerHost(address,string,string)": {
+					"notice": "Registra un nuovo server Linux/VPS autorizzato ad ancorare radici di Merkle."
+				},
+				"verifyLeafProof(string,bytes32,bytes32[])": {
+					"notice": "Verifica matematicamente l'inclusione probatoria di un singolo log all'interno di un batch."
+				}
+			},
+			"notice": "Piattaforma enterprise di log notarization e forensic audit trail su Arbitrum Sepolia L2.",
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"LogNotary.sol": "LogNotary"
+		},
+		"evmVersion": "osaka",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"@openzeppelin/contracts/access/Ownable.sol": {
+			"keccak256": "0xff6d0bb2e285473e5311d9d3caacb525ae3538a80758c10649a4d61029b017bb",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://8ed324d3920bb545059d66ab97d43e43ee85fd3bd52e03e401f020afb0b120f6",
+				"dweb:/ipfs/QmfEckWLmZkDDcoWrkEvMWhms66xwTLff9DDhegYpvHo1a"
+			]
+		},
+		"@openzeppelin/contracts/utils/Context.sol": {
+			"keccak256": "0x493033a8d1b176a037b2cc6a04dad01a5c157722049bbecf632ca876224dd4b2",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://6a708e8a5bdb1011c2c381c9a5cfd8a9a956d7d0a9dc1bd8bcdaf52f76ef2f12",
+				"dweb:/ipfs/Qmax9WHBnVsZP46ZxEMNRQpLQnrdE4dK8LehML1Py8FowF"
+			]
+		},
+		"@openzeppelin/contracts/utils/cryptography/Hashes.sol": {
+			"keccak256": "0x8cbd338f083224b4b6f0ff42cbda641a0a6c31ffcdca197452b97fe4d0918269",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://f517dec5ba0c6491395acbf7f1d621f4e89e8f218bf5303c867b1c5ad70c6b11",
+				"dweb:/ipfs/QmWmXHRLEw8W6ckth7NyYTU88YfvuS7xSsfae5ksL8qNUe"
+			]
+		},
+		"@openzeppelin/contracts/utils/cryptography/MerkleProof.sol": {
+			"keccak256": "0x5e27273c7ebdbcfe7d2bad2866feb635a49db139abfe5643bdeacec4a0880225",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://715bf6d5198cacf619202a75333205b19ff267f14d40daa2f7afa363580b3c95",
+				"dweb:/ipfs/QmZ5kVidhB3q767655WSqgsz6YBTop1tVo7akzEDRb2PQr"
+			]
+		},
+		"LogNotary.sol": {
+			"keccak256": "0xd0199fbba023b4993e08bceb0e507ad14cd9ba0aadf0851428d706263ac472d1",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://fa6fc7fb9e5af408e95fb7e7e0c70b357377bf084351038cdf4124fc5bad1f67",
+				"dweb:/ipfs/QmWoNY4F2aU4FaBtqZ5aZ3boR7N2fPuW8sRwwuHijrcZZs"
+			]
+		}
+	},
+	"version": 1
+}
