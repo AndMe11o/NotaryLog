@@ -1,0 +1,1068 @@
+[
+  {
+    "id": "56c44165-5fb2-4f8f-a912-c2ad77db7730",
+    "timestamp": "2026-09-10T14:34:12.120427+00:00",
+    "raw_log": "Invalid user pot from 93.39.136.131 port 24064",
+    "leaf": "0x1aecfe4a751a04e7bb95a1cf4db32c3504d0ac35b3666274b2cb1e871c91f61e",
+    "batch_id": "9edebc36-fee8-47c7-ac6a-a215ad88c4ce",
+    "merkle_root": "0x45f1624da895aa85d9de7a4dbaa90464b49773906a84b2eef3aab4658e89672f",
+    "proof": [
+      "0x3c7ffbb364c7fd67d97e76b4b28340a5e7272ed74b645679ee2aceaa14ce2daa"
+    ],
+    "tx_hash": "0x88a8e71ff6d5096527e20e2705a73b6ec4a27c326fa52e32a0d3501cbf505bf9"
+  },
+  {
+    "id": "55774b33-91f9-43c0-9557-e4acbb84f455",
+    "timestamp": "2026-09-10T14:34:18.624233+00:00",
+    "raw_log": "Connection reset by invalid user pot 93.39.136.131 port 24064 [preauth]",
+    "leaf": "0x3c7ffbb364c7fd67d97e76b4b28340a5e7272ed74b645679ee2aceaa14ce2daa",
+    "batch_id": "9edebc36-fee8-47c7-ac6a-a215ad88c4ce",
+    "merkle_root": "0x45f1624da895aa85d9de7a4dbaa90464b49773906a84b2eef3aab4658e89672f",
+    "proof": [
+      "0x1aecfe4a751a04e7bb95a1cf4db32c3504d0ac35b3666274b2cb1e871c91f61e"
+    ],
+    "tx_hash": "0x88a8e71ff6d5096527e20e2705a73b6ec4a27c326fa52e32a0d3501cbf505bf9"
+  },
+  {
+    "id": "b65ad649-2c5e-4ee4-bc06-f1f6d8ebb51e",
+    "timestamp": "2026-09-10T14:34:39.795159+00:00",
+    "raw_log": "Invalid user pots from 93.39.136.131 port 24072",
+    "leaf": "0x0c801a7b565a5ad7618c88fb446cfa2e15d32fa6796f545380f5db6b3e179827",
+    "batch_id": "754edb36-e929-44b6-81f5-50a62250097f",
+    "merkle_root": "0x8de784bca39cf54d424de9345417a5edf108776d6db89798863ccf149c78b1c4",
+    "proof": [
+      "0x25586eaaffaf4fa4a76d13fdb7e8177ff307de12463f8138ff0a35cd0710d88f"
+    ],
+    "tx_hash": "0x37fb30c7bea8a3fef81456a7297eeee065c732db31fca0970869f12bdbfdb3c9"
+  },
+  {
+    "id": "8d6d14bf-19cb-4b80-a72d-b8e1a63e956e",
+    "timestamp": "2026-09-10T14:34:44.297997+00:00",
+    "raw_log": "pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=93.39.136.131",
+    "leaf": "0x25586eaaffaf4fa4a76d13fdb7e8177ff307de12463f8138ff0a35cd0710d88f",
+    "batch_id": "754edb36-e929-44b6-81f5-50a62250097f",
+    "merkle_root": "0x8de784bca39cf54d424de9345417a5edf108776d6db89798863ccf149c78b1c4",
+    "proof": [
+      "0x0c801a7b565a5ad7618c88fb446cfa2e15d32fa6796f545380f5db6b3e179827"
+    ],
+    "tx_hash": "0x37fb30c7bea8a3fef81456a7297eeee065c732db31fca0970869f12bdbfdb3c9"
+  },
+  {
+    "id": "2247661d-21e2-4fa5-9aa1-5a2b61bbd3a2",
+    "timestamp": "2026-09-10T14:34:46.837429+00:00",
+    "raw_log": "Failed password for invalid user pots from 93.39.136.131 port 24072 ssh2",
+    "leaf": "0x0a0e982082dfec588561d5c9dd7ff930be808cea7b7d8e47e14bbf78b7d86c54",
+    "batch_id": "3e585d77-eff8-4295-9da7-de8b3ffadf04",
+    "merkle_root": "0x14df39711719f436607e1879de56f61c2b237a8b6079cc9fa75c8e731e7653fa",
+    "proof": [
+      "0x0a0e982082dfec588561d5c9dd7ff930be808cea7b7d8e47e14bbf78b7d86c54"
+    ],
+    "tx_hash": "0xbd83168d9760647dc3c419805309fd174051b1a6c1ef0a3e1d42970eab6fdd55"
+  },
+  {
+    "id": "9db884e2-a60c-47a4-aa3d-f82c76a84775",
+    "timestamp": "2026-09-10T14:36:20.898262+00:00",
+    "raw_log": "Failed password for invalid user pots from 93.39.136.131 port 24072 ssh2",
+    "leaf": "0x0a0e982082dfec588561d5c9dd7ff930be808cea7b7d8e47e14bbf78b7d86c54",
+    "batch_id": "3e585d77-eff8-4295-9da7-de8b3ffadf04",
+    "merkle_root": "0x14df39711719f436607e1879de56f61c2b237a8b6079cc9fa75c8e731e7653fa",
+    "proof": [
+      "0x0a0e982082dfec588561d5c9dd7ff930be808cea7b7d8e47e14bbf78b7d86c54"
+    ],
+    "tx_hash": "0xbd83168d9760647dc3c419805309fd174051b1a6c1ef0a3e1d42970eab6fdd55"
+  },
+  {
+    "id": "979b4c15-4088-4611-8355-fef5963ddb85",
+    "timestamp": "2026-09-10T16:24:23.923643+00:00",
+    "raw_log": "Invalid user pot from 93.39.136.131 port 23850",
+    "leaf": "0xdf3f8e2003490783d0efa7700f4547a49bb9355e4ec7bbe5432e862aa48198fd",
+    "batch_id": "a01cdd5b-98b7-4faf-a69b-043690ef020c",
+    "merkle_root": "0x31731cd7d5c015fbffff29b775ffacbb85294e5d0000428d851fd5b5764b30aa",
+    "proof": [
+      "0x25586eaaffaf4fa4a76d13fdb7e8177ff307de12463f8138ff0a35cd0710d88f"
+    ],
+    "tx_hash": "0x991dbb3d613218904bfc8ef7d80939fe32f049b9dfec816d268edc446cc41ff2"
+  },
+  {
+    "id": "5a65fabe-1627-4257-851f-d33f687ceab0",
+    "timestamp": "2026-09-10T16:24:28.426708+00:00",
+    "raw_log": "pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=93.39.136.131",
+    "leaf": "0x25586eaaffaf4fa4a76d13fdb7e8177ff307de12463f8138ff0a35cd0710d88f",
+    "batch_id": "a01cdd5b-98b7-4faf-a69b-043690ef020c",
+    "merkle_root": "0x31731cd7d5c015fbffff29b775ffacbb85294e5d0000428d851fd5b5764b30aa",
+    "proof": [
+      "0xdf3f8e2003490783d0efa7700f4547a49bb9355e4ec7bbe5432e862aa48198fd"
+    ],
+    "tx_hash": "0x991dbb3d613218904bfc8ef7d80939fe32f049b9dfec816d268edc446cc41ff2"
+  },
+  {
+    "id": "6caa44f7-23f8-4127-ab2c-adf03e5a802d",
+    "timestamp": "2026-09-10T16:24:30.796697+00:00",
+    "raw_log": "Failed password for invalid user pot from 93.39.136.131 port 23850 ssh2",
+    "leaf": "0xaed8fbc1810499975fd98f8d5acb59128eea17715a16763e4eb05f6107ada61e",
+    "batch_id": "e7e4b2a1-9d88-4f4b-8f19-d9ed75d339bc",
+    "merkle_root": "0xa878179bad80e89aac48c615a7f9856476fb1a94158f18224b47bb5a44acdab6",
+    "proof": [
+      "0x7f4136775b0da5b09ce524230b526982c0fb930692efa1f26ad30c34a376ad83"
+    ],
+    "tx_hash": "0xe96cb12002d4e9fda74441a692106f170608d1c9a3b61b3ed7cc794ed47b48d2"
+  },
+  {
+    "id": "06c65565-2218-45bb-b229-f7ccc10b4f32",
+    "timestamp": "2026-09-10T16:24:46.305696+00:00",
+    "raw_log": "pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=31.70.84.142  user=root",
+    "leaf": "0x7f4136775b0da5b09ce524230b526982c0fb930692efa1f26ad30c34a376ad83",
+    "batch_id": "e7e4b2a1-9d88-4f4b-8f19-d9ed75d339bc",
+    "merkle_root": "0xa878179bad80e89aac48c615a7f9856476fb1a94158f18224b47bb5a44acdab6",
+    "proof": [
+      "0xaed8fbc1810499975fd98f8d5acb59128eea17715a16763e4eb05f6107ada61e"
+    ],
+    "tx_hash": "0xe96cb12002d4e9fda74441a692106f170608d1c9a3b61b3ed7cc794ed47b48d2"
+  },
+  {
+    "id": "e3c4c4ee-2d0b-416c-b9d5-f83516a17131",
+    "timestamp": "2026-09-10T16:24:48.822475+00:00",
+    "raw_log": "Failed password for root from 31.70.84.142 port 60894 ssh2",
+    "leaf": "0x9d64e8abb27c56dfcc42f79408fde7f95cfd57a178c493c3d0373dd80b945e84",
+    "batch_id": "6e4b9846-52a0-4ab0-ac14-95a435a2085a",
+    "merkle_root": "0xb760955422d7dbaa2cfd470ee9de1b47f78ed3140f270e1fb2417f810754e40b",
+    "proof": [
+      "0x80294bf390c4ee6910f33ea3b090db86b7c0e23b1d323fcedd97ea0e210223dc"
+    ],
+    "tx_hash": "0x696c39ba0fc1e027bcae5c2fa82d058be5cbb9ac0bc81fa6e7e75514fac02618"
+  },
+  {
+    "id": "56d4096a-b498-40a8-af76-e69caa0141e3",
+    "timestamp": "2026-09-10T16:25:20.347667+00:00",
+    "raw_log": "Connection reset by invalid user pot 93.39.136.131 port 23850 [preauth]",
+    "leaf": "0x80294bf390c4ee6910f33ea3b090db86b7c0e23b1d323fcedd97ea0e210223dc",
+    "batch_id": "6e4b9846-52a0-4ab0-ac14-95a435a2085a",
+    "merkle_root": "0xb760955422d7dbaa2cfd470ee9de1b47f78ed3140f270e1fb2417f810754e40b",
+    "proof": [
+      "0x9d64e8abb27c56dfcc42f79408fde7f95cfd57a178c493c3d0373dd80b945e84"
+    ],
+    "tx_hash": "0x696c39ba0fc1e027bcae5c2fa82d058be5cbb9ac0bc81fa6e7e75514fac02618"
+  },
+  {
+    "id": "84ea5fb2-f131-4a11-b2ce-b52af93b6653",
+    "timestamp": "2026-09-10T16:25:22.511203+00:00",
+    "raw_log": "Invalid user pot from 93.39.136.131 port 23928",
+    "leaf": "0x71791d843ef80a209a0bd971726651f5261432c5ea5f68dc8ac000e8dfe2c3e4",
+    "batch_id": "19e714fd-6f01-4a74-9944-5ecf6d985645",
+    "merkle_root": "0x7aaab78098c624df393f5f6ed909808d54eef889f4ecc006eae955d42d20f8ca",
+    "proof": [
+      "0x81768e1fda28857dd9e787f938cd19268bc77f160963a3be34fafe8a3283fb67"
+    ],
+    "tx_hash": "0x2d9780da37e6265171d2c18ce7436ce25b3c78a70c6d337dd4ee6504968eb8a5"
+  },
+  {
+    "id": "2887c988-09a8-4c20-ba73-9391e9bd0d05",
+    "timestamp": "2026-09-10T16:25:25.012873+00:00",
+    "raw_log": "Connection reset by invalid user pot 93.39.136.131 port 23928 [preauth]",
+    "leaf": "0x81768e1fda28857dd9e787f938cd19268bc77f160963a3be34fafe8a3283fb67",
+    "batch_id": "19e714fd-6f01-4a74-9944-5ecf6d985645",
+    "merkle_root": "0x7aaab78098c624df393f5f6ed909808d54eef889f4ecc006eae955d42d20f8ca",
+    "proof": [
+      "0x71791d843ef80a209a0bd971726651f5261432c5ea5f68dc8ac000e8dfe2c3e4"
+    ],
+    "tx_hash": "0x2d9780da37e6265171d2c18ce7436ce25b3c78a70c6d337dd4ee6504968eb8a5"
+  },
+  {
+    "id": "e19700b3-5f02-4b85-b3c9-e70b0c9c80b4",
+    "timestamp": "2026-09-10T16:25:27.193060+00:00",
+    "raw_log": "Invalid user pot from 93.39.136.131 port 23934",
+    "leaf": "0x4fdfeb78bfa940930ef155f7803e3027e203435fd0462bdced8e5afc45b2460e",
+    "batch_id": "f9ca75c4-b247-4e53-9c90-59d3fd35ad86",
+    "merkle_root": "0x4fdfeb78bfa940930ef155f7803e3027e203435fd0462bdced8e5afc45b2460e",
+    "proof": [],
+    "tx_hash": "0xb28a4090150e2c4a09b5bea7873d2d07de512afd21926b99c26bbe20f4862b57"
+  },
+  {
+    "id": "f2aa009c-9cbe-4a77-ae4b-c839b3118923",
+    "timestamp": "2026-09-10T16:45:56.130397+00:00",
+    "raw_log": "pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=92.118.39.14  user=root",
+    "leaf": "0x0d064f67e4647d2fa0316edb255cd93c9bd349603fde81f4c8919d976a534efa",
+    "batch_id": "5ee867a5-52c6-47f3-8083-19a36a921576",
+    "merkle_root": "0x3b1f12a8719d5b87301af47daed8a5f28b008f601a27f7159833640ce1f028f2",
+    "proof": [
+      "0x46e5fdfe1d15f222a88db8423bf6a613022803c2a28f68d3d16706a1a8ffdcc9"
+    ],
+    "tx_hash": "0xca9d1db0a1e438e227135d7f0f45322a30a9b0db7f429a932f9ea450d3c161a8"
+  },
+  {
+    "id": "0bc7d397-ab8a-44f9-9f82-04c2f8f01984",
+    "timestamp": "2026-09-10T16:45:58.131776+00:00",
+    "raw_log": "Failed password for root from 92.118.39.14 port 36600 ssh2",
+    "leaf": "0x46e5fdfe1d15f222a88db8423bf6a613022803c2a28f68d3d16706a1a8ffdcc9",
+    "batch_id": "5ee867a5-52c6-47f3-8083-19a36a921576",
+    "merkle_root": "0x3b1f12a8719d5b87301af47daed8a5f28b008f601a27f7159833640ce1f028f2",
+    "proof": [
+      "0x0d064f67e4647d2fa0316edb255cd93c9bd349603fde81f4c8919d976a534efa"
+    ],
+    "tx_hash": "0xca9d1db0a1e438e227135d7f0f45322a30a9b0db7f429a932f9ea450d3c161a8"
+  },
+  {
+    "id": "dc581603-a658-4b8a-a6b8-76f282cdf059",
+    "timestamp": "2026-09-10T16:47:20.903647+00:00",
+    "raw_log": "pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=92.118.39.49  user=root",
+    "leaf": "0x2045ac2f9d01f295dd9cc982d0113789e8cfe80cb43e9c0dc49b2f4f95228741",
+    "batch_id": "c1587bc7-2001-4914-a3f1-7bbbce8a6d39",
+    "merkle_root": "0xadf5fa5fb709e352d3f5a393c7eedaaa8ad430464ecf671d5e86250b4059f058",
+    "proof": [
+      "0x0d3fdc1c418c91841cdabde686a92e5f66097680522ed38309c71bed0c1479be",
+      "0x6f59fe278c62be008ddf871f49932859dbac09962b238749f49a0dcc7b8b4c79",
+      "0xe9cdd4403949ee4c2fd1ce7df6e16b9757f1dfa84f5e33f8db6f36a2f0c4352a"
+    ],
+    "tx_hash": "0x0943b59015fb2c61595f41ed7740a9bf26ff6865942631642219eb65f0e1d3c5"
+  },
+  {
+    "id": "ddfb8fcc-6f83-4608-82d2-6cf2fa08e3d6",
+    "timestamp": "2026-09-10T16:47:22.905332+00:00",
+    "raw_log": "Failed password for root from 92.118.39.49 port 43592 ssh2",
+    "leaf": "0x0d3fdc1c418c91841cdabde686a92e5f66097680522ed38309c71bed0c1479be",
+    "batch_id": "c1587bc7-2001-4914-a3f1-7bbbce8a6d39",
+    "merkle_root": "0xadf5fa5fb709e352d3f5a393c7eedaaa8ad430464ecf671d5e86250b4059f058",
+    "proof": [
+      "0x2045ac2f9d01f295dd9cc982d0113789e8cfe80cb43e9c0dc49b2f4f95228741",
+      "0x6f59fe278c62be008ddf871f49932859dbac09962b238749f49a0dcc7b8b4c79",
+      "0xe9cdd4403949ee4c2fd1ce7df6e16b9757f1dfa84f5e33f8db6f36a2f0c4352a"
+    ],
+    "tx_hash": "0x0943b59015fb2c61595f41ed7740a9bf26ff6865942631642219eb65f0e1d3c5"
+  },
+  {
+    "id": "a070f49f-3938-48d6-a719-6334a87d9a7e",
+    "timestamp": "2026-09-10T16:47:28.408765+00:00",
+    "raw_log": "pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=31.70.84.142  user=root",
+    "leaf": "0x7f4136775b0da5b09ce524230b526982c0fb930692efa1f26ad30c34a376ad83",
+    "batch_id": "c1587bc7-2001-4914-a3f1-7bbbce8a6d39",
+    "merkle_root": "0xadf5fa5fb709e352d3f5a393c7eedaaa8ad430464ecf671d5e86250b4059f058",
+    "proof": [
+      "0xee6f4791c7e01cc9a5b8f28f73dbe78c095d340537f07528338e213bebf36d58",
+      "0xf275ce03fbd1141f6930bbbc82df045b3bea4bfa0078850b0150d19dd74daa87",
+      "0xe9cdd4403949ee4c2fd1ce7df6e16b9757f1dfa84f5e33f8db6f36a2f0c4352a"
+    ],
+    "tx_hash": "0x0943b59015fb2c61595f41ed7740a9bf26ff6865942631642219eb65f0e1d3c5"
+  },
+  {
+    "id": "0e98e497-8f51-4efd-a431-f83c3d3cc213",
+    "timestamp": "2026-09-10T16:47:30.410335+00:00",
+    "raw_log": "Failed password for root from 31.70.84.142 port 47558 ssh2",
+    "leaf": "0xee6f4791c7e01cc9a5b8f28f73dbe78c095d340537f07528338e213bebf36d58",
+    "batch_id": "c1587bc7-2001-4914-a3f1-7bbbce8a6d39",
+    "merkle_root": "0xadf5fa5fb709e352d3f5a393c7eedaaa8ad430464ecf671d5e86250b4059f058",
+    "proof": [
+      "0x7f4136775b0da5b09ce524230b526982c0fb930692efa1f26ad30c34a376ad83",
+      "0xf275ce03fbd1141f6930bbbc82df045b3bea4bfa0078850b0150d19dd74daa87",
+      "0xe9cdd4403949ee4c2fd1ce7df6e16b9757f1dfa84f5e33f8db6f36a2f0c4352a"
+    ],
+    "tx_hash": "0x0943b59015fb2c61595f41ed7740a9bf26ff6865942631642219eb65f0e1d3c5"
+  },
+  {
+    "id": "ce6624cf-94dd-4dfd-853f-7ac239360c90",
+    "timestamp": "2026-09-10T16:47:32.912055+00:00",
+    "raw_log": "pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=62.60.130.201  user=root",
+    "leaf": "0xf4426273e29ad244c83b68d96338f544e81d2cf2be029000f8ab532d51ab8beb",
+    "batch_id": "c1587bc7-2001-4914-a3f1-7bbbce8a6d39",
+    "merkle_root": "0xadf5fa5fb709e352d3f5a393c7eedaaa8ad430464ecf671d5e86250b4059f058",
+    "proof": [
+      "0xf4426273e29ad244c83b68d96338f544e81d2cf2be029000f8ab532d51ab8beb",
+      "0x1915ff8b8bb87e2b7be8072b16f53102892c909d6f329ecf729d0c460c995cf7",
+      "0x10a75379c9b4ef163ce4110bad005fe2d5b9cd8a8baee8f5d8074a873cb85e80"
+    ],
+    "tx_hash": "0x0943b59015fb2c61595f41ed7740a9bf26ff6865942631642219eb65f0e1d3c5"
+  },
+  {
+    "id": "9d9245f6-5121-4a36-b8da-3b4fdfb6d14d",
+    "timestamp": "2026-09-10T16:47:36.771030+00:00",
+    "raw_log": "Failed password for root from 62.60.130.201 port 28166 ssh2",
+    "leaf": "0x90fe07252275296f8138a35bee4f40bb2b703706edcc0d436b7e80327f310580",
+    "batch_id": "a5940743-5de7-4d7b-824d-f165d4ef28a6",
+    "merkle_root": "0xf637166302098cc88407e73ec6a5e560c06c67d1c490119f86905a16af18fc77",
+    "proof": [
+      "0x90fe07252275296f8138a35bee4f40bb2b703706edcc0d436b7e80327f310580",
+      "0xccb1ee0e42a968c3b23ba68208cfd7d4d0e51f80ef9b943c410b116f4fa2d1bf",
+      "0x5cee5b7d71b2c34e4351dff1bbff654d19f1bd231b3e6c27189107bb1fdca6bd",
+      "0xf193e2aa229c96021a489d7dd1d419c7479d9966d0ce2673633046510e6a6f1e"
+    ],
+    "tx_hash": "0xf0954d0f95adeca54e4995d553752298654d476a75d1f99f610851d295b6525d"
+  },
+  {
+    "id": "89819164-be1c-46b2-aa1f-a146f1950a82",
+    "timestamp": "2026-09-10T16:47:38.272155+00:00",
+    "raw_log": "Failed password for root from 62.60.130.201 port 28166 ssh2",
+    "leaf": "0x90fe07252275296f8138a35bee4f40bb2b703706edcc0d436b7e80327f310580",
+    "batch_id": "a5940743-5de7-4d7b-824d-f165d4ef28a6",
+    "merkle_root": "0xf637166302098cc88407e73ec6a5e560c06c67d1c490119f86905a16af18fc77",
+    "proof": [
+      "0x90fe07252275296f8138a35bee4f40bb2b703706edcc0d436b7e80327f310580",
+      "0xccb1ee0e42a968c3b23ba68208cfd7d4d0e51f80ef9b943c410b116f4fa2d1bf",
+      "0x5cee5b7d71b2c34e4351dff1bbff654d19f1bd231b3e6c27189107bb1fdca6bd",
+      "0xf193e2aa229c96021a489d7dd1d419c7479d9966d0ce2673633046510e6a6f1e"
+    ],
+    "tx_hash": "0xf0954d0f95adeca54e4995d553752298654d476a75d1f99f610851d295b6525d"
+  },
+  {
+    "id": "c868d112-5dd0-410c-ba1f-f7ea47697c5a",
+    "timestamp": "2026-09-10T16:47:41.274197+00:00",
+    "raw_log": "Failed password for root from 62.60.130.201 port 28166 ssh2",
+    "leaf": "0x90fe07252275296f8138a35bee4f40bb2b703706edcc0d436b7e80327f310580",
+    "batch_id": "a5940743-5de7-4d7b-824d-f165d4ef28a6",
+    "merkle_root": "0xf637166302098cc88407e73ec6a5e560c06c67d1c490119f86905a16af18fc77",
+    "proof": [
+      "0x90fe07252275296f8138a35bee4f40bb2b703706edcc0d436b7e80327f310580",
+      "0xccb1ee0e42a968c3b23ba68208cfd7d4d0e51f80ef9b943c410b116f4fa2d1bf",
+      "0x5cee5b7d71b2c34e4351dff1bbff654d19f1bd231b3e6c27189107bb1fdca6bd",
+      "0xf193e2aa229c96021a489d7dd1d419c7479d9966d0ce2673633046510e6a6f1e"
+    ],
+    "tx_hash": "0xf0954d0f95adeca54e4995d553752298654d476a75d1f99f610851d295b6525d"
+  },
+  {
+    "id": "ca2d8f77-653e-4afa-8bf7-ba2aece0cc75",
+    "timestamp": "2026-09-10T16:47:44.776414+00:00",
+    "raw_log": "Failed password for root from 62.60.130.201 port 28166 ssh2",
+    "leaf": "0x90fe07252275296f8138a35bee4f40bb2b703706edcc0d436b7e80327f310580",
+    "batch_id": "a5940743-5de7-4d7b-824d-f165d4ef28a6",
+    "merkle_root": "0xf637166302098cc88407e73ec6a5e560c06c67d1c490119f86905a16af18fc77",
+    "proof": [
+      "0x90fe07252275296f8138a35bee4f40bb2b703706edcc0d436b7e80327f310580",
+      "0xccb1ee0e42a968c3b23ba68208cfd7d4d0e51f80ef9b943c410b116f4fa2d1bf",
+      "0x5cee5b7d71b2c34e4351dff1bbff654d19f1bd231b3e6c27189107bb1fdca6bd",
+      "0xf193e2aa229c96021a489d7dd1d419c7479d9966d0ce2673633046510e6a6f1e"
+    ],
+    "tx_hash": "0xf0954d0f95adeca54e4995d553752298654d476a75d1f99f610851d295b6525d"
+  },
+  {
+    "id": "bcaf7429-a5e8-4f1c-93c4-33caa98a1ae4",
+    "timestamp": "2026-09-10T16:47:48.278690+00:00",
+    "raw_log": "Failed password for root from 62.60.130.201 port 28166 ssh2",
+    "leaf": "0x90fe07252275296f8138a35bee4f40bb2b703706edcc0d436b7e80327f310580",
+    "batch_id": "a5940743-5de7-4d7b-824d-f165d4ef28a6",
+    "merkle_root": "0xf637166302098cc88407e73ec6a5e560c06c67d1c490119f86905a16af18fc77",
+    "proof": [
+      "0xd137c17e27e13a504ba57e1b1aaaba9723e125307378dd0e01560bf4c3eba63c",
+      "0xfb7fea9ec254f10f78d07ca7a989e5b01459bace44c742c4a41d4fec64759ee3",
+      "0x5c3d2526e1880b0d810dae484526390b9bce859fe6898f8f72ef4237019fde2f",
+      "0xf193e2aa229c96021a489d7dd1d419c7479d9966d0ce2673633046510e6a6f1e"
+    ],
+    "tx_hash": "0xf0954d0f95adeca54e4995d553752298654d476a75d1f99f610851d295b6525d"
+  },
+  {
+    "id": "41be77cb-04f5-4553-8159-87cab02ab437",
+    "timestamp": "2026-09-10T16:47:49.279489+00:00",
+    "raw_log": "PAM 4 more authentication failures; logname= uid=0 euid=0 tty=ssh ruser= rhost=62.60.130.201  user=root",
+    "leaf": "0xd137c17e27e13a504ba57e1b1aaaba9723e125307378dd0e01560bf4c3eba63c",
+    "batch_id": "a5940743-5de7-4d7b-824d-f165d4ef28a6",
+    "merkle_root": "0xf637166302098cc88407e73ec6a5e560c06c67d1c490119f86905a16af18fc77",
+    "proof": [
+      "0x90fe07252275296f8138a35bee4f40bb2b703706edcc0d436b7e80327f310580",
+      "0xfb7fea9ec254f10f78d07ca7a989e5b01459bace44c742c4a41d4fec64759ee3",
+      "0x5c3d2526e1880b0d810dae484526390b9bce859fe6898f8f72ef4237019fde2f",
+      "0xf193e2aa229c96021a489d7dd1d419c7479d9966d0ce2673633046510e6a6f1e"
+    ],
+    "tx_hash": "0xf0954d0f95adeca54e4995d553752298654d476a75d1f99f610851d295b6525d"
+  },
+  {
+    "id": "bb0beb5e-a4d9-4ebf-925b-237ac5727b39",
+    "timestamp": "2026-09-10T16:48:26.301469+00:00",
+    "raw_log": "pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=92.118.39.14  user=root",
+    "leaf": "0x0d064f67e4647d2fa0316edb255cd93c9bd349603fde81f4c8919d976a534efa",
+    "batch_id": "a5940743-5de7-4d7b-824d-f165d4ef28a6",
+    "merkle_root": "0xf637166302098cc88407e73ec6a5e560c06c67d1c490119f86905a16af18fc77",
+    "proof": [
+      "0xee73fc9a0236da8b67360100d8d36cc91b2ad696d03ec07a195bf834ec4dc204",
+      "0x6ba5e1010dbb0d8f84a33a110122a31956fc01250d9300447128798574dc360c",
+      "0x5c3d2526e1880b0d810dae484526390b9bce859fe6898f8f72ef4237019fde2f",
+      "0xf193e2aa229c96021a489d7dd1d419c7479d9966d0ce2673633046510e6a6f1e"
+    ],
+    "tx_hash": "0xf0954d0f95adeca54e4995d553752298654d476a75d1f99f610851d295b6525d"
+  },
+  {
+    "id": "7d64f63a-c296-4096-a602-5c62e8a69ebe",
+    "timestamp": "2026-09-10T16:48:27.803153+00:00",
+    "raw_log": "Failed password for root from 92.118.39.14 port 39672 ssh2",
+    "leaf": "0xee73fc9a0236da8b67360100d8d36cc91b2ad696d03ec07a195bf834ec4dc204",
+    "batch_id": "a5940743-5de7-4d7b-824d-f165d4ef28a6",
+    "merkle_root": "0xf637166302098cc88407e73ec6a5e560c06c67d1c490119f86905a16af18fc77",
+    "proof": [
+      "0x0d064f67e4647d2fa0316edb255cd93c9bd349603fde81f4c8919d976a534efa",
+      "0x6ba5e1010dbb0d8f84a33a110122a31956fc01250d9300447128798574dc360c",
+      "0x5c3d2526e1880b0d810dae484526390b9bce859fe6898f8f72ef4237019fde2f",
+      "0xf193e2aa229c96021a489d7dd1d419c7479d9966d0ce2673633046510e6a6f1e"
+    ],
+    "tx_hash": "0xf0954d0f95adeca54e4995d553752298654d476a75d1f99f610851d295b6525d"
+  },
+  {
+    "id": "585f3470-64ac-4172-a9a7-8c89c6b370fe",
+    "timestamp": "2026-09-10T16:48:35.307582+00:00",
+    "raw_log": "Invalid user test from 31.70.84.142 port 38270",
+    "leaf": "0xe2b0b133fba0a7eb3295340abbaf49bcc0e23f06a16c9a5028a42e5af491ae1b",
+    "batch_id": "a5940743-5de7-4d7b-824d-f165d4ef28a6",
+    "merkle_root": "0xf637166302098cc88407e73ec6a5e560c06c67d1c490119f86905a16af18fc77",
+    "proof": [
+      "0xe3beeee45fc0d2a342ed320e34a0be3d22acadd3fe01ebfbf35602ed9e294f84",
+      "0x48f4b6afbc3f4301fc9a44f0eba29411266ca351041666061e30d3ed6fcd3a3f",
+      "0xb47d3863c012aa83f66bc4c87b8a8ae8335c104de82af18c4e1d5f72a70b0b12",
+      "0xb84039452d27363527eed7b31b5e0640a62e2bcdadd196bb6fe6da816019ab3a"
+    ],
+    "tx_hash": "0xf0954d0f95adeca54e4995d553752298654d476a75d1f99f610851d295b6525d"
+  },
+  {
+    "id": "1a06786a-d73c-433f-8268-e1b4315cee4d",
+    "timestamp": "2026-09-10T16:48:36.308335+00:00",
+    "raw_log": "pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=31.70.84.142",
+    "leaf": "0xe3beeee45fc0d2a342ed320e34a0be3d22acadd3fe01ebfbf35602ed9e294f84",
+    "batch_id": "a5940743-5de7-4d7b-824d-f165d4ef28a6",
+    "merkle_root": "0xf637166302098cc88407e73ec6a5e560c06c67d1c490119f86905a16af18fc77",
+    "proof": [
+      "0xe2b0b133fba0a7eb3295340abbaf49bcc0e23f06a16c9a5028a42e5af491ae1b",
+      "0x48f4b6afbc3f4301fc9a44f0eba29411266ca351041666061e30d3ed6fcd3a3f",
+      "0xb47d3863c012aa83f66bc4c87b8a8ae8335c104de82af18c4e1d5f72a70b0b12",
+      "0xb84039452d27363527eed7b31b5e0640a62e2bcdadd196bb6fe6da816019ab3a"
+    ],
+    "tx_hash": "0xf0954d0f95adeca54e4995d553752298654d476a75d1f99f610851d295b6525d"
+  },
+  {
+    "id": "745f9518-6f3c-41ba-8757-9267be455df5",
+    "timestamp": "2026-09-10T16:48:38.824140+00:00",
+    "raw_log": "Failed password for invalid user test from 31.70.84.142 port 38270 ssh2",
+    "leaf": "0x6e4a680800366f976821331c1f206051c9617dffa38a6771236c9ebf330273ab",
+    "batch_id": "0c2e10da-e511-4e25-acce-8fcb39c9f7e2",
+    "merkle_root": "0x82f5147aa1131050d26930bf61d1457ba222fb16c8eed078cb5a6624c571285b",
+    "proof": [
+      "0x5b09a8bdd90f1e8521673888c0a1d42b94608831c35641ad9813edd449bb4590",
+      "0x3a3346fe708db83893faea9e01db744fb7e970f3a31a35bc388d15e024fbbe8b"
+    ],
+    "tx_hash": "0x80da166177216b2ce680a5f9f3987fec6c5961c79f734912066bd44218f3d0ac"
+  },
+  {
+    "id": "74d1d825-2d21-4407-8d6c-b3e5ea0e42f7",
+    "timestamp": "2026-09-10T16:48:39.824950+00:00",
+    "raw_log": "Connection closed by invalid user test 31.70.84.142 port 38270 [preauth]",
+    "leaf": "0x5b09a8bdd90f1e8521673888c0a1d42b94608831c35641ad9813edd449bb4590",
+    "batch_id": "0c2e10da-e511-4e25-acce-8fcb39c9f7e2",
+    "merkle_root": "0x82f5147aa1131050d26930bf61d1457ba222fb16c8eed078cb5a6624c571285b",
+    "proof": [
+      "0x6e4a680800366f976821331c1f206051c9617dffa38a6771236c9ebf330273ab",
+      "0x3a3346fe708db83893faea9e01db744fb7e970f3a31a35bc388d15e024fbbe8b"
+    ],
+    "tx_hash": "0x80da166177216b2ce680a5f9f3987fec6c5961c79f734912066bd44218f3d0ac"
+  },
+  {
+    "id": "a07246de-4dc0-4689-a285-c6cb7dd21e87",
+    "timestamp": "2026-09-10T16:49:15.345895+00:00",
+    "raw_log": "pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=92.118.39.49  user=root",
+    "leaf": "0x2045ac2f9d01f295dd9cc982d0113789e8cfe80cb43e9c0dc49b2f4f95228741",
+    "batch_id": "0c2e10da-e511-4e25-acce-8fcb39c9f7e2",
+    "merkle_root": "0x82f5147aa1131050d26930bf61d1457ba222fb16c8eed078cb5a6624c571285b",
+    "proof": [
+      "0x0e6bf7b487a8716d7ab87f35f79a03ff73b3eab0c4a15cc310f85e4b7c8b2265",
+      "0x240baf934100576423b7024b83fa25fd0ab8b0c4859365804a5cd752f65a6ca0"
+    ],
+    "tx_hash": "0x80da166177216b2ce680a5f9f3987fec6c5961c79f734912066bd44218f3d0ac"
+  },
+  {
+    "id": "c8e9b896-afd3-4151-9b37-1ecc1b97dbff",
+    "timestamp": "2026-09-10T16:49:17.347361+00:00",
+    "raw_log": "Failed password for root from 92.118.39.49 port 46712 ssh2",
+    "leaf": "0x0e6bf7b487a8716d7ab87f35f79a03ff73b3eab0c4a15cc310f85e4b7c8b2265",
+    "batch_id": "0c2e10da-e511-4e25-acce-8fcb39c9f7e2",
+    "merkle_root": "0x82f5147aa1131050d26930bf61d1457ba222fb16c8eed078cb5a6624c571285b",
+    "proof": [
+      "0x2045ac2f9d01f295dd9cc982d0113789e8cfe80cb43e9c0dc49b2f4f95228741",
+      "0x240baf934100576423b7024b83fa25fd0ab8b0c4859365804a5cd752f65a6ca0"
+    ],
+    "tx_hash": "0x80da166177216b2ce680a5f9f3987fec6c5961c79f734912066bd44218f3d0ac"
+  },
+  {
+    "id": "f5828475-d6e9-4aee-b5c6-d5a1fdc38666",
+    "timestamp": "2026-09-10T16:49:42.691629+00:00",
+    "raw_log": "Invalid user vyos from 31.70.84.142 port 57726",
+    "leaf": "0x2158ef2abaa49c701a22fee6e720a3432aa5f72b5a89e046682e9f9ba6c7d7b1",
+    "batch_id": "b3a7abc8-2c94-46b9-b864-089b725cfdfa",
+    "merkle_root": "0xf4308bdedee68c83c18fd306dc6c5da0aa9c1ae14a0cacab161219dd444fe349",
+    "proof": [
+      "0xe3beeee45fc0d2a342ed320e34a0be3d22acadd3fe01ebfbf35602ed9e294f84",
+      "0x066d4df45ce9869c004c0e3b07e04da57e09b8ab0ecaf3108945268c0507299c"
+    ],
+    "tx_hash": "0x2323c1069185ae2676f9f4a27419603b6d8fcf4e92e8c887c5ccfcd7c4e075da"
+  },
+  {
+    "id": "332bc5f0-3e29-4076-b048-2b7ec3c0aed4",
+    "timestamp": "2026-09-10T16:49:43.692416+00:00",
+    "raw_log": "pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=31.70.84.142",
+    "leaf": "0xe3beeee45fc0d2a342ed320e34a0be3d22acadd3fe01ebfbf35602ed9e294f84",
+    "batch_id": "b3a7abc8-2c94-46b9-b864-089b725cfdfa",
+    "merkle_root": "0xf4308bdedee68c83c18fd306dc6c5da0aa9c1ae14a0cacab161219dd444fe349",
+    "proof": [
+      "0x2158ef2abaa49c701a22fee6e720a3432aa5f72b5a89e046682e9f9ba6c7d7b1",
+      "0x066d4df45ce9869c004c0e3b07e04da57e09b8ab0ecaf3108945268c0507299c"
+    ],
+    "tx_hash": "0x2323c1069185ae2676f9f4a27419603b6d8fcf4e92e8c887c5ccfcd7c4e075da"
+  },
+  {
+    "id": "5af677cf-cb76-4016-8581-db28b5aa2ea3",
+    "timestamp": "2026-09-10T16:49:44.193003+00:00",
+    "raw_log": "Failed password for invalid user vyos from 31.70.84.142 port 57726 ssh2",
+    "leaf": "0xd9b1654ffee7aa5b1b4674aa3ac95829d631df49902944eb4a75778121b84fd5",
+    "batch_id": "b3a7abc8-2c94-46b9-b864-089b725cfdfa",
+    "merkle_root": "0xf4308bdedee68c83c18fd306dc6c5da0aa9c1ae14a0cacab161219dd444fe349",
+    "proof": [
+      "0xf5f5150714e31eec11824349fac630fe27638731821e56440fd20d69761f8cd5",
+      "0xd518d949778af42803f8b66561d589dbe54c1ec4e276f50baf2023aa8961c45e"
+    ],
+    "tx_hash": "0x2323c1069185ae2676f9f4a27419603b6d8fcf4e92e8c887c5ccfcd7c4e075da"
+  },
+  {
+    "id": "1598aa44-cf79-4b67-8a5d-afda7f5ea274",
+    "timestamp": "2026-09-10T16:49:45.194000+00:00",
+    "raw_log": "Connection closed by invalid user vyos 31.70.84.142 port 57726 [preauth]",
+    "leaf": "0xf5f5150714e31eec11824349fac630fe27638731821e56440fd20d69761f8cd5",
+    "batch_id": "b3a7abc8-2c94-46b9-b864-089b725cfdfa",
+    "merkle_root": "0xf4308bdedee68c83c18fd306dc6c5da0aa9c1ae14a0cacab161219dd444fe349",
+    "proof": [
+      "0xd9b1654ffee7aa5b1b4674aa3ac95829d631df49902944eb4a75778121b84fd5",
+      "0xd518d949778af42803f8b66561d589dbe54c1ec4e276f50baf2023aa8961c45e"
+    ],
+    "tx_hash": "0x2323c1069185ae2676f9f4a27419603b6d8fcf4e92e8c887c5ccfcd7c4e075da"
+  },
+  {
+    "id": "99f30a5f-1811-43ca-a372-9a86f2234284",
+    "timestamp": "2026-09-10T16:50:46.596308+00:00",
+    "raw_log": "Invalid user useradmin from 31.70.84.142 port 52396",
+    "leaf": "0x3ad6081162b0429961ff9215ef862e4d3944b4aec1422144038c0da042b66fb2",
+    "batch_id": "3fa65c43-4b85-4c75-8a2b-9ec6f8c0643e",
+    "merkle_root": "0x1c0203c04e7fbc7ba3bc915be9bc5ef4287794f6d749701af35c7e43924749ac",
+    "proof": [
+      "0xe3beeee45fc0d2a342ed320e34a0be3d22acadd3fe01ebfbf35602ed9e294f84",
+      "0x65d62b9b52d93eff6e871c056f7bca1a0d23cd6c010da9e5989a753a1c9ceef3",
+      "0xf04a51ef4cd40e04e5718c36a697a61ad3a5c154dc7782a45961873ca6bf1581"
+    ],
+    "tx_hash": "0x7c7bc4bb645ba31b732d9eea1daae9f8c9e3e26f2178a1d290b4472632870867"
+  },
+  {
+    "id": "59ef0a88-4c7d-44b9-81dd-9239b3e6fa7e",
+    "timestamp": "2026-09-10T16:50:47.597058+00:00",
+    "raw_log": "pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=31.70.84.142",
+    "leaf": "0xe3beeee45fc0d2a342ed320e34a0be3d22acadd3fe01ebfbf35602ed9e294f84",
+    "batch_id": "3fa65c43-4b85-4c75-8a2b-9ec6f8c0643e",
+    "merkle_root": "0x1c0203c04e7fbc7ba3bc915be9bc5ef4287794f6d749701af35c7e43924749ac",
+    "proof": [
+      "0x3ad6081162b0429961ff9215ef862e4d3944b4aec1422144038c0da042b66fb2",
+      "0x65d62b9b52d93eff6e871c056f7bca1a0d23cd6c010da9e5989a753a1c9ceef3",
+      "0xf04a51ef4cd40e04e5718c36a697a61ad3a5c154dc7782a45961873ca6bf1581"
+    ],
+    "tx_hash": "0x7c7bc4bb645ba31b732d9eea1daae9f8c9e3e26f2178a1d290b4472632870867"
+  },
+  {
+    "id": "a9e33ec9-ede8-4e45-94b1-8532bc4203e4",
+    "timestamp": "2026-09-10T16:50:48.097783+00:00",
+    "raw_log": "Failed password for invalid user useradmin from 31.70.84.142 port 52396 ssh2",
+    "leaf": "0x223d9edcb32c7c4fa27e8293a898bd4524ab0f9b0bec75d1119b74cd6df47a0c",
+    "batch_id": "3fa65c43-4b85-4c75-8a2b-9ec6f8c0643e",
+    "merkle_root": "0x1c0203c04e7fbc7ba3bc915be9bc5ef4287794f6d749701af35c7e43924749ac",
+    "proof": [
+      "0x574ef3ae971b6f6e5b1c796cde4413323af4718ad8896d382aebe3f98dd962e4",
+      "0xd43af45aa28fd2d12e2b29bb97e62228035e73d7f9228f0069851225dccf2211",
+      "0xf04a51ef4cd40e04e5718c36a697a61ad3a5c154dc7782a45961873ca6bf1581"
+    ],
+    "tx_hash": "0x7c7bc4bb645ba31b732d9eea1daae9f8c9e3e26f2178a1d290b4472632870867"
+  },
+  {
+    "id": "39b6baa0-879c-4fbb-a6a1-11d7f516de2e",
+    "timestamp": "2026-09-10T16:50:48.598311+00:00",
+    "raw_log": "Connection closed by invalid user useradmin 31.70.84.142 port 52396 [preauth]",
+    "leaf": "0x574ef3ae971b6f6e5b1c796cde4413323af4718ad8896d382aebe3f98dd962e4",
+    "batch_id": "3fa65c43-4b85-4c75-8a2b-9ec6f8c0643e",
+    "merkle_root": "0x1c0203c04e7fbc7ba3bc915be9bc5ef4287794f6d749701af35c7e43924749ac",
+    "proof": [
+      "0x223d9edcb32c7c4fa27e8293a898bd4524ab0f9b0bec75d1119b74cd6df47a0c",
+      "0xd43af45aa28fd2d12e2b29bb97e62228035e73d7f9228f0069851225dccf2211",
+      "0xf04a51ef4cd40e04e5718c36a697a61ad3a5c154dc7782a45961873ca6bf1581"
+    ],
+    "tx_hash": "0x7c7bc4bb645ba31b732d9eea1daae9f8c9e3e26f2178a1d290b4472632870867"
+  },
+  {
+    "id": "8e7e3815-e12d-44be-8c8a-9e6e9cdf2e99",
+    "timestamp": "2026-09-10T16:50:54.602211+00:00",
+    "raw_log": "pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=92.118.39.14  user=root",
+    "leaf": "0x0d064f67e4647d2fa0316edb255cd93c9bd349603fde81f4c8919d976a534efa",
+    "batch_id": "3fa65c43-4b85-4c75-8a2b-9ec6f8c0643e",
+    "merkle_root": "0x1c0203c04e7fbc7ba3bc915be9bc5ef4287794f6d749701af35c7e43924749ac",
+    "proof": [
+      "0x6c02f197b8ba5d828429080ec02d02b0d05abd41df6a0cab198bfb71b6002c06",
+      "0x17ccedb7c528c6a994ef2bb0d3ac327a553785e3a4e2ac753adcb577d8ab6478",
+      "0x84765aeb82d03305b212f304c2e7e2f5265599dc84dc850b350b6d3bc350941f"
+    ],
+    "tx_hash": "0x7c7bc4bb645ba31b732d9eea1daae9f8c9e3e26f2178a1d290b4472632870867"
+  },
+  {
+    "id": "0023877e-b2b1-4025-afaf-6f6493edba19",
+    "timestamp": "2026-09-10T16:50:56.603623+00:00",
+    "raw_log": "Failed password for root from 92.118.39.14 port 42766 ssh2",
+    "leaf": "0x6c02f197b8ba5d828429080ec02d02b0d05abd41df6a0cab198bfb71b6002c06",
+    "batch_id": "3fa65c43-4b85-4c75-8a2b-9ec6f8c0643e",
+    "merkle_root": "0x1c0203c04e7fbc7ba3bc915be9bc5ef4287794f6d749701af35c7e43924749ac",
+    "proof": [
+      "0x0d064f67e4647d2fa0316edb255cd93c9bd349603fde81f4c8919d976a534efa",
+      "0x17ccedb7c528c6a994ef2bb0d3ac327a553785e3a4e2ac753adcb577d8ab6478",
+      "0x84765aeb82d03305b212f304c2e7e2f5265599dc84dc850b350b6d3bc350941f"
+    ],
+    "tx_hash": "0x7c7bc4bb645ba31b732d9eea1daae9f8c9e3e26f2178a1d290b4472632870867"
+  },
+  {
+    "id": "65a99ccd-fe90-43dd-b4d4-03fbbf70355b",
+    "timestamp": "2026-09-10T16:51:05.609227+00:00",
+    "raw_log": "pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=92.118.39.49  user=root",
+    "leaf": "0x2045ac2f9d01f295dd9cc982d0113789e8cfe80cb43e9c0dc49b2f4f95228741",
+    "batch_id": "3fa65c43-4b85-4c75-8a2b-9ec6f8c0643e",
+    "merkle_root": "0x1c0203c04e7fbc7ba3bc915be9bc5ef4287794f6d749701af35c7e43924749ac",
+    "proof": [
+      "0xc60dcc6d86aee238c6ff9159fa8d0fbc3891b06875d262d76c236d24a1a025e0",
+      "0x421758f9be14bd6d087a12743e89453d2be1a1ce7c08ba2af7de85ae2f49939a",
+      "0x84765aeb82d03305b212f304c2e7e2f5265599dc84dc850b350b6d3bc350941f"
+    ],
+    "tx_hash": "0x7c7bc4bb645ba31b732d9eea1daae9f8c9e3e26f2178a1d290b4472632870867"
+  },
+  {
+    "id": "fe895f71-42cb-40ba-b47f-1350045a0b96",
+    "timestamp": "2026-09-10T16:51:08.112298+00:00",
+    "raw_log": "Failed password for root from 92.118.39.49 port 49820 ssh2",
+    "leaf": "0xc60dcc6d86aee238c6ff9159fa8d0fbc3891b06875d262d76c236d24a1a025e0",
+    "batch_id": "3fa65c43-4b85-4c75-8a2b-9ec6f8c0643e",
+    "merkle_root": "0x1c0203c04e7fbc7ba3bc915be9bc5ef4287794f6d749701af35c7e43924749ac",
+    "proof": [
+      "0x2045ac2f9d01f295dd9cc982d0113789e8cfe80cb43e9c0dc49b2f4f95228741",
+      "0x421758f9be14bd6d087a12743e89453d2be1a1ce7c08ba2af7de85ae2f49939a",
+      "0x84765aeb82d03305b212f304c2e7e2f5265599dc84dc850b350b6d3bc350941f"
+    ],
+    "tx_hash": "0x7c7bc4bb645ba31b732d9eea1daae9f8c9e3e26f2178a1d290b4472632870867"
+  },
+  {
+    "id": "34a39848-bdf5-4106-9bb3-c5cf2a4f4451",
+    "timestamp": "2026-09-10T16:51:50.053062+00:00",
+    "raw_log": "pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=31.70.84.142  user=root",
+    "leaf": "0x7f4136775b0da5b09ce524230b526982c0fb930692efa1f26ad30c34a376ad83",
+    "batch_id": "7f6f549b-0857-4c8c-8125-57d40a1cd206",
+    "merkle_root": "0x04791fbc00b8c6f5ee1e0d77cb3de448e182d9ca3c454e35f49b92b783af8708",
+    "proof": [
+      "0xe42bca1885b211f6e3cd64bc69131c5044521096a8f9ea3d59e49fabe59d4a3e",
+      "0x16a14c1bb967311d1f276b048bab23e54d365964186542a0dd4c452a9380c7ec",
+      "0x0e6b0bf8ecca6cd8fb8f11a9a192449ba507e8ae2aa09d5755c3483d602f62d5"
+    ],
+    "tx_hash": "0xc165cd94ebfeb69ad31e2d4e12ded4ac9557e71884c51b62f26412bc62a4bab3"
+  },
+  {
+    "id": "457bb964-3471-4384-8f98-5f69c8e10e4b",
+    "timestamp": "2026-09-10T16:51:51.554302+00:00",
+    "raw_log": "Failed password for root from 31.70.84.142 port 46104 ssh2",
+    "leaf": "0xe42bca1885b211f6e3cd64bc69131c5044521096a8f9ea3d59e49fabe59d4a3e",
+    "batch_id": "7f6f549b-0857-4c8c-8125-57d40a1cd206",
+    "merkle_root": "0x04791fbc00b8c6f5ee1e0d77cb3de448e182d9ca3c454e35f49b92b783af8708",
+    "proof": [
+      "0x7f4136775b0da5b09ce524230b526982c0fb930692efa1f26ad30c34a376ad83",
+      "0x16a14c1bb967311d1f276b048bab23e54d365964186542a0dd4c452a9380c7ec",
+      "0x0e6b0bf8ecca6cd8fb8f11a9a192449ba507e8ae2aa09d5755c3483d602f62d5"
+    ],
+    "tx_hash": "0xc165cd94ebfeb69ad31e2d4e12ded4ac9557e71884c51b62f26412bc62a4bab3"
+  },
+  {
+    "id": "0f59fb9b-6a44-4d25-8802-53bc5f8e680e",
+    "timestamp": "2026-09-10T16:52:32.082290+00:00",
+    "raw_log": "pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=45.148.10.157  user=root",
+    "leaf": "0x10b3c99142e3e4371607ec80fd7665a0f786605a0020af0d77248b47937f6695",
+    "batch_id": "7f6f549b-0857-4c8c-8125-57d40a1cd206",
+    "merkle_root": "0x04791fbc00b8c6f5ee1e0d77cb3de448e182d9ca3c454e35f49b92b783af8708",
+    "proof": [
+      "0x5767196d45344ead01cbd5c7a664ef6ed87cbd5fd1054a832e4e71549c03abcb",
+      "0x823b6d891b8f8d7bc2c8eb146a635b63f58e0e921dec63311f6d6dd1c8abee50",
+      "0x0e6b0bf8ecca6cd8fb8f11a9a192449ba507e8ae2aa09d5755c3483d602f62d5"
+    ],
+    "tx_hash": "0xc165cd94ebfeb69ad31e2d4e12ded4ac9557e71884c51b62f26412bc62a4bab3"
+  },
+  {
+    "id": "6e861be5-1430-4462-97b6-8a919640cbfb",
+    "timestamp": "2026-09-10T16:52:33.583468+00:00",
+    "raw_log": "Failed password for root from 45.148.10.157 port 25978 ssh2",
+    "leaf": "0x5767196d45344ead01cbd5c7a664ef6ed87cbd5fd1054a832e4e71549c03abcb",
+    "batch_id": "7f6f549b-0857-4c8c-8125-57d40a1cd206",
+    "merkle_root": "0x04791fbc00b8c6f5ee1e0d77cb3de448e182d9ca3c454e35f49b92b783af8708",
+    "proof": [
+      "0x10b3c99142e3e4371607ec80fd7665a0f786605a0020af0d77248b47937f6695",
+      "0x823b6d891b8f8d7bc2c8eb146a635b63f58e0e921dec63311f6d6dd1c8abee50",
+      "0x0e6b0bf8ecca6cd8fb8f11a9a192449ba507e8ae2aa09d5755c3483d602f62d5"
+    ],
+    "tx_hash": "0xc165cd94ebfeb69ad31e2d4e12ded4ac9557e71884c51b62f26412bc62a4bab3"
+  },
+  {
+    "id": "ce95633b-3be4-44e3-b2b1-4162c2a17fdd",
+    "timestamp": "2026-09-10T16:52:37.085890+00:00",
+    "raw_log": "Failed password for root from 45.148.10.157 port 25978 ssh2",
+    "leaf": "0x5767196d45344ead01cbd5c7a664ef6ed87cbd5fd1054a832e4e71549c03abcb",
+    "batch_id": "7f6f549b-0857-4c8c-8125-57d40a1cd206",
+    "merkle_root": "0x04791fbc00b8c6f5ee1e0d77cb3de448e182d9ca3c454e35f49b92b783af8708",
+    "proof": [
+      "0x5767196d45344ead01cbd5c7a664ef6ed87cbd5fd1054a832e4e71549c03abcb",
+      "0xe205808fb62412aea4b099745186f65bcc5a2e97d09f3d4fd992f82a9dccd45c",
+      "0x6094d14021ff36efdb6c4ac8b1d03bb647831177ec269e2dfe060c7f28786138"
+    ],
+    "tx_hash": "0xc165cd94ebfeb69ad31e2d4e12ded4ac9557e71884c51b62f26412bc62a4bab3"
+  },
+  {
+    "id": "642b2630-3628-4d54-aeae-52fcf8980580",
+    "timestamp": "2026-09-10T16:52:40.087949+00:00",
+    "raw_log": "Failed password for root from 45.148.10.157 port 25978 ssh2",
+    "leaf": "0x5767196d45344ead01cbd5c7a664ef6ed87cbd5fd1054a832e4e71549c03abcb",
+    "batch_id": "7f6f549b-0857-4c8c-8125-57d40a1cd206",
+    "merkle_root": "0x04791fbc00b8c6f5ee1e0d77cb3de448e182d9ca3c454e35f49b92b783af8708",
+    "proof": [
+      "0x5767196d45344ead01cbd5c7a664ef6ed87cbd5fd1054a832e4e71549c03abcb",
+      "0xe205808fb62412aea4b099745186f65bcc5a2e97d09f3d4fd992f82a9dccd45c",
+      "0x6094d14021ff36efdb6c4ac8b1d03bb647831177ec269e2dfe060c7f28786138"
+    ],
+    "tx_hash": "0xc165cd94ebfeb69ad31e2d4e12ded4ac9557e71884c51b62f26412bc62a4bab3"
+  },
+  {
+    "id": "5a156349-941e-42be-9776-034d7df3d583",
+    "timestamp": "2026-09-10T16:52:43.590307+00:00",
+    "raw_log": "Failed password for root from 45.148.10.157 port 25978 ssh2",
+    "leaf": "0x5767196d45344ead01cbd5c7a664ef6ed87cbd5fd1054a832e4e71549c03abcb",
+    "batch_id": "7f6f549b-0857-4c8c-8125-57d40a1cd206",
+    "merkle_root": "0x04791fbc00b8c6f5ee1e0d77cb3de448e182d9ca3c454e35f49b92b783af8708",
+    "proof": [
+      "0x5767196d45344ead01cbd5c7a664ef6ed87cbd5fd1054a832e4e71549c03abcb",
+      "0xe205808fb62412aea4b099745186f65bcc5a2e97d09f3d4fd992f82a9dccd45c",
+      "0x6094d14021ff36efdb6c4ac8b1d03bb647831177ec269e2dfe060c7f28786138"
+    ],
+    "tx_hash": "0xc165cd94ebfeb69ad31e2d4e12ded4ac9557e71884c51b62f26412bc62a4bab3"
+  },
+  {
+    "id": "56b061ba-680c-468d-bec3-829c832754d8",
+    "timestamp": "2026-09-10T16:52:46.691200+00:00",
+    "raw_log": "Failed password for root from 45.148.10.157 port 25978 ssh2",
+    "leaf": "0x5767196d45344ead01cbd5c7a664ef6ed87cbd5fd1054a832e4e71549c03abcb",
+    "batch_id": "2115decd-1f8c-4d66-ba54-de8312d1c331",
+    "merkle_root": "0x2d9e855d5de14be19384e566f115d306e6d03c362d47ebb7a58bff2690a56cd1",
+    "proof": [
+      "0x3037106cf8a58c6cefd4227e7366bbcdc6da7ab2e6044fac60fb5a02c0302860",
+      "0xea23ee22b6d09f7d3e5f9a2cc01300bf545261bf12155a839a2728575a3c3005",
+      "0x9c712d05bf4b20d39257fa078df89611c30243af90d21a050b4fd2f853ee6b32"
+    ],
+    "tx_hash": "0xc85a1ab1eeb942ecff41e21ac81a999ae7c371c9b3c51b6afee5356ec7ead99a"
+  },
+  {
+    "id": "b9f777b8-48c2-4a22-bff8-8663be30dadf",
+    "timestamp": "2026-09-10T16:52:47.692137+00:00",
+    "raw_log": "PAM 4 more authentication failures; logname= uid=0 euid=0 tty=ssh ruser= rhost=45.148.10.157  user=root",
+    "leaf": "0x3037106cf8a58c6cefd4227e7366bbcdc6da7ab2e6044fac60fb5a02c0302860",
+    "batch_id": "2115decd-1f8c-4d66-ba54-de8312d1c331",
+    "merkle_root": "0x2d9e855d5de14be19384e566f115d306e6d03c362d47ebb7a58bff2690a56cd1",
+    "proof": [
+      "0x5767196d45344ead01cbd5c7a664ef6ed87cbd5fd1054a832e4e71549c03abcb",
+      "0xea23ee22b6d09f7d3e5f9a2cc01300bf545261bf12155a839a2728575a3c3005",
+      "0x9c712d05bf4b20d39257fa078df89611c30243af90d21a050b4fd2f853ee6b32"
+    ],
+    "tx_hash": "0xc85a1ab1eeb942ecff41e21ac81a999ae7c371c9b3c51b6afee5356ec7ead99a"
+  },
+  {
+    "id": "d43fa280-546a-4943-9900-4215ffed51cf",
+    "timestamp": "2026-09-10T16:52:54.196120+00:00",
+    "raw_log": "pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=31.70.84.142  user=root",
+    "leaf": "0x7f4136775b0da5b09ce524230b526982c0fb930692efa1f26ad30c34a376ad83",
+    "batch_id": "2115decd-1f8c-4d66-ba54-de8312d1c331",
+    "merkle_root": "0x2d9e855d5de14be19384e566f115d306e6d03c362d47ebb7a58bff2690a56cd1",
+    "proof": [
+      "0x2045ac2f9d01f295dd9cc982d0113789e8cfe80cb43e9c0dc49b2f4f95228741",
+      "0xd24077740f2d1136851c67e358edc063ca08c61a6fcecefce872c897ad24f45c",
+      "0x9c712d05bf4b20d39257fa078df89611c30243af90d21a050b4fd2f853ee6b32"
+    ],
+    "tx_hash": "0xc85a1ab1eeb942ecff41e21ac81a999ae7c371c9b3c51b6afee5356ec7ead99a"
+  },
+  {
+    "id": "1cf2a0fa-d46c-480a-bc52-5bfba409a437",
+    "timestamp": "2026-09-10T16:52:54.696579+00:00",
+    "raw_log": "pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=92.118.39.49  user=root",
+    "leaf": "0x2045ac2f9d01f295dd9cc982d0113789e8cfe80cb43e9c0dc49b2f4f95228741",
+    "batch_id": "2115decd-1f8c-4d66-ba54-de8312d1c331",
+    "merkle_root": "0x2d9e855d5de14be19384e566f115d306e6d03c362d47ebb7a58bff2690a56cd1",
+    "proof": [
+      "0x7f4136775b0da5b09ce524230b526982c0fb930692efa1f26ad30c34a376ad83",
+      "0xd24077740f2d1136851c67e358edc063ca08c61a6fcecefce872c897ad24f45c",
+      "0x9c712d05bf4b20d39257fa078df89611c30243af90d21a050b4fd2f853ee6b32"
+    ],
+    "tx_hash": "0xc85a1ab1eeb942ecff41e21ac81a999ae7c371c9b3c51b6afee5356ec7ead99a"
+  },
+  {
+    "id": "32422b97-4944-4a66-aa08-21b4342187db",
+    "timestamp": "2026-09-10T16:52:56.698157+00:00",
+    "raw_log": "Failed password for root from 31.70.84.142 port 47100 ssh2",
+    "leaf": "0x8053f8abc780543a6cf5a58091238d88047d906af92bb7a95f83b2b179fc6a3f",
+    "batch_id": "2115decd-1f8c-4d66-ba54-de8312d1c331",
+    "merkle_root": "0x2d9e855d5de14be19384e566f115d306e6d03c362d47ebb7a58bff2690a56cd1",
+    "proof": [
+      "0xd6897263db0cc68a6cb05baeba78f0506e9c3631a4546f0a07e8d27c78fb45ed",
+      "0xb57caf40072857f9276205ea2a27bfacde4b5f678bf0bd53bcae7f232688044a",
+      "0xfafd5f47239d010e2c9ec93d809d228ef7830a305482656d817ce0d194fd9fcb"
+    ],
+    "tx_hash": "0xc85a1ab1eeb942ecff41e21ac81a999ae7c371c9b3c51b6afee5356ec7ead99a"
+  },
+  {
+    "id": "4bb2016e-9db1-4305-8463-0d9187567d1e",
+    "timestamp": "2026-09-10T16:52:57.198684+00:00",
+    "raw_log": "Failed password for root from 92.118.39.49 port 52892 ssh2",
+    "leaf": "0xd6897263db0cc68a6cb05baeba78f0506e9c3631a4546f0a07e8d27c78fb45ed",
+    "batch_id": "2115decd-1f8c-4d66-ba54-de8312d1c331",
+    "merkle_root": "0x2d9e855d5de14be19384e566f115d306e6d03c362d47ebb7a58bff2690a56cd1",
+    "proof": [
+      "0x8053f8abc780543a6cf5a58091238d88047d906af92bb7a95f83b2b179fc6a3f",
+      "0xb57caf40072857f9276205ea2a27bfacde4b5f678bf0bd53bcae7f232688044a",
+      "0xfafd5f47239d010e2c9ec93d809d228ef7830a305482656d817ce0d194fd9fcb"
+    ],
+    "tx_hash": "0xc85a1ab1eeb942ecff41e21ac81a999ae7c371c9b3c51b6afee5356ec7ead99a"
+  },
+  {
+    "id": "efd23f2a-b3f8-42ae-bb4d-9d57b0287be4",
+    "timestamp": "2026-09-10T16:53:20.719757+00:00",
+    "raw_log": "pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=92.118.39.14  user=root",
+    "leaf": "0x0d064f67e4647d2fa0316edb255cd93c9bd349603fde81f4c8919d976a534efa",
+    "batch_id": "2115decd-1f8c-4d66-ba54-de8312d1c331",
+    "merkle_root": "0x2d9e855d5de14be19384e566f115d306e6d03c362d47ebb7a58bff2690a56cd1",
+    "proof": [
+      "0x32c00240d64ae3f47b8399a592d1037d82f54f38989beb6498aaa102a85c7fa1",
+      "0xebecf1cf16cddb77872db6ef45d7f657efc138f5dc8c45a5359bfa6a695f92a8",
+      "0xfafd5f47239d010e2c9ec93d809d228ef7830a305482656d817ce0d194fd9fcb"
+    ],
+    "tx_hash": "0xc85a1ab1eeb942ecff41e21ac81a999ae7c371c9b3c51b6afee5356ec7ead99a"
+  },
+  {
+    "id": "5dd61438-dbf8-432b-bafc-70bca1355956",
+    "timestamp": "2026-09-10T16:53:22.721172+00:00",
+    "raw_log": "Failed password for root from 92.118.39.14 port 45832 ssh2",
+    "leaf": "0x32c00240d64ae3f47b8399a592d1037d82f54f38989beb6498aaa102a85c7fa1",
+    "batch_id": "2115decd-1f8c-4d66-ba54-de8312d1c331",
+    "merkle_root": "0x2d9e855d5de14be19384e566f115d306e6d03c362d47ebb7a58bff2690a56cd1",
+    "proof": [
+      "0x0d064f67e4647d2fa0316edb255cd93c9bd349603fde81f4c8919d976a534efa",
+      "0xebecf1cf16cddb77872db6ef45d7f657efc138f5dc8c45a5359bfa6a695f92a8",
+      "0xfafd5f47239d010e2c9ec93d809d228ef7830a305482656d817ce0d194fd9fcb"
+    ],
+    "tx_hash": "0xc85a1ab1eeb942ecff41e21ac81a999ae7c371c9b3c51b6afee5356ec7ead99a"
+  },
+  {
+    "id": "75e9536b-1b4e-4b22-91e1-dd6afdfc29a1",
+    "timestamp": "2026-09-10T16:53:57.092294+00:00",
+    "raw_log": "pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=31.70.84.142  user=root",
+    "leaf": "0x7f4136775b0da5b09ce524230b526982c0fb930692efa1f26ad30c34a376ad83",
+    "batch_id": "bb5d7b99-ce5f-46e3-b4a4-18717bd252e2",
+    "merkle_root": "0xc62ddf2f9ff20e1d259a12a8b3191075163485d2e38bb8be7abebad941f6bd36",
+    "proof": [
+      "0xde8a2a55b489730a357e5c8103f0ba47355000d595c6ee766bf40757ca132bdf",
+      "0xcfdd22f2bc402181a1c4c5ae86260802760e83dbb7c9165a41f0bb3832ae7b8d"
+    ],
+    "tx_hash": "0x4ad02107e4954e63f51799e0709534295b53158eded905cd69d2ec188eb3a192"
+  },
+  {
+    "id": "d5562b43-6db6-4833-b973-7d05b8f5164e",
+    "timestamp": "2026-09-10T16:53:59.093679+00:00",
+    "raw_log": "Failed password for root from 31.70.84.142 port 47690 ssh2",
+    "leaf": "0xde8a2a55b489730a357e5c8103f0ba47355000d595c6ee766bf40757ca132bdf",
+    "batch_id": "bb5d7b99-ce5f-46e3-b4a4-18717bd252e2",
+    "merkle_root": "0xc62ddf2f9ff20e1d259a12a8b3191075163485d2e38bb8be7abebad941f6bd36",
+    "proof": [
+      "0x7f4136775b0da5b09ce524230b526982c0fb930692efa1f26ad30c34a376ad83",
+      "0xcfdd22f2bc402181a1c4c5ae86260802760e83dbb7c9165a41f0bb3832ae7b8d"
+    ],
+    "tx_hash": "0x4ad02107e4954e63f51799e0709534295b53158eded905cd69d2ec188eb3a192"
+  },
+  {
+    "id": "53dbaea1-8a0a-4019-bd5e-6d81ab28066e",
+    "timestamp": "2026-09-10T16:54:39.116647+00:00",
+    "raw_log": "pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=92.118.39.49  user=root",
+    "leaf": "0x2045ac2f9d01f295dd9cc982d0113789e8cfe80cb43e9c0dc49b2f4f95228741",
+    "batch_id": "bb5d7b99-ce5f-46e3-b4a4-18717bd252e2",
+    "merkle_root": "0xc62ddf2f9ff20e1d259a12a8b3191075163485d2e38bb8be7abebad941f6bd36",
+    "proof": [
+      "0xba5edc2b9feb8e7d1913c93c0943a8699a3f8e79d512aef9f692122977eac1a9",
+      "0x22bfae711d56e1c33173004dde3890974353ab29205b955af05ebea1c2d82109"
+    ],
+    "tx_hash": "0x4ad02107e4954e63f51799e0709534295b53158eded905cd69d2ec188eb3a192"
+  },
+  {
+    "id": "23fce2cd-6179-41c3-9c9d-84489f81c075",
+    "timestamp": "2026-09-10T16:54:41.118057+00:00",
+    "raw_log": "Failed password for root from 92.118.39.49 port 55928 ssh2",
+    "leaf": "0xba5edc2b9feb8e7d1913c93c0943a8699a3f8e79d512aef9f692122977eac1a9",
+    "batch_id": "bb5d7b99-ce5f-46e3-b4a4-18717bd252e2",
+    "merkle_root": "0xc62ddf2f9ff20e1d259a12a8b3191075163485d2e38bb8be7abebad941f6bd36",
+    "proof": [
+      "0x2045ac2f9d01f295dd9cc982d0113789e8cfe80cb43e9c0dc49b2f4f95228741",
+      "0x22bfae711d56e1c33173004dde3890974353ab29205b955af05ebea1c2d82109"
+    ],
+    "tx_hash": "0x4ad02107e4954e63f51799e0709534295b53158eded905cd69d2ec188eb3a192"
+  },
+  {
+    "id": "79b7913b-8ef2-46ec-b992-a9bdde492992",
+    "timestamp": "2026-09-10T16:55:02.012480+00:00",
+    "raw_log": "Invalid user admin from 31.70.84.142 port 46018",
+    "leaf": "0x8d7f9a402365cee634b312271da565b52d7b7fad086b6d97c7b90098883ac7b9",
+    "batch_id": "30259499-0ed0-4949-8aa2-926a593269c3",
+    "merkle_root": "0x796217578a1832e2af4f073084d5ae79db39ff765842483c32de35331aabf615",
+    "proof": [
+      "0xe3beeee45fc0d2a342ed320e34a0be3d22acadd3fe01ebfbf35602ed9e294f84",
+      "0x3feb32faa9c063737292289af0f9df225b2bad7e49826544230c6928829286e5"
+    ],
+    "tx_hash": "0x14af815bd8df86a047013b4b27ee370e2d8e153f14d3e5978c009ff6ee0624e9"
+  },
+  {
+    "id": "f079a974-c23b-4302-b0f8-42116d89b825",
+    "timestamp": "2026-09-10T16:55:03.015722+00:00",
+    "raw_log": "pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=31.70.84.142",
+    "leaf": "0xe3beeee45fc0d2a342ed320e34a0be3d22acadd3fe01ebfbf35602ed9e294f84",
+    "batch_id": "30259499-0ed0-4949-8aa2-926a593269c3",
+    "merkle_root": "0x796217578a1832e2af4f073084d5ae79db39ff765842483c32de35331aabf615",
+    "proof": [
+      "0x8d7f9a402365cee634b312271da565b52d7b7fad086b6d97c7b90098883ac7b9",
+      "0x3feb32faa9c063737292289af0f9df225b2bad7e49826544230c6928829286e5"
+    ],
+    "tx_hash": "0x14af815bd8df86a047013b4b27ee370e2d8e153f14d3e5978c009ff6ee0624e9"
+  },
+  {
+    "id": "f1d179c6-42ec-49cf-b5a5-90f8cbe2dcab",
+    "timestamp": "2026-09-10T16:55:04.018414+00:00",
+    "raw_log": "Failed password for invalid user admin from 31.70.84.142 port 46018 ssh2",
+    "leaf": "0xa41ba76882cdcf02fc7f6d4890f28561cd3d5b585ad678df73d01e3cff063a08",
+    "batch_id": "30259499-0ed0-4949-8aa2-926a593269c3",
+    "merkle_root": "0x796217578a1832e2af4f073084d5ae79db39ff765842483c32de35331aabf615",
+    "proof": [
+      "0xfbe0499fe15cf0efba00fa9d7e399ef6866a7565cade52e76dff13df2a06167f",
+      "0x2acd1f1a18584525c06374c529a3eb9f8e90f0f205711bf0c10c9c6edc0b3cf5"
+    ],
+    "tx_hash": "0x14af815bd8df86a047013b4b27ee370e2d8e153f14d3e5978c009ff6ee0624e9"
+  },
+  {
+    "id": "9aff377f-5f6d-4978-99aa-7fa28384db04",
+    "timestamp": "2026-09-10T16:55:06.019923+00:00",
+    "raw_log": "Connection closed by invalid user admin 31.70.84.142 port 46018 [preauth]",
+    "leaf": "0xfbe0499fe15cf0efba00fa9d7e399ef6866a7565cade52e76dff13df2a06167f",
+    "batch_id": "30259499-0ed0-4949-8aa2-926a593269c3",
+    "merkle_root": "0x796217578a1832e2af4f073084d5ae79db39ff765842483c32de35331aabf615",
+    "proof": [
+      "0xa41ba76882cdcf02fc7f6d4890f28561cd3d5b585ad678df73d01e3cff063a08",
+      "0x2acd1f1a18584525c06374c529a3eb9f8e90f0f205711bf0c10c9c6edc0b3cf5"
+    ],
+    "tx_hash": "0x14af815bd8df86a047013b4b27ee370e2d8e153f14d3e5978c009ff6ee0624e9"
+  },
+  {
+    "id": "5c6223f1-2645-41ef-9f26-586c0ec9b095",
+    "timestamp": "1970-01-01T00:00:00Z",
+    "raw_log": "FAILED_LOGIN user='sdasd' tty='ssh:notty' rhost='93.39.136.131' pid=2218 epoch=0",
+    "leaf": "0xfa9aef4a0ca38a8c17f6080d32932e2894e4972c44dc46aee77dc947fc42c0f3",
+    "batch_id": "94ff11f6-f0f9-40da-bf55-7ab90ab21f44",
+    "proof": [],
+    "tx_hash": "eb4dfbe4d1fddb620477004cfe5371488bd3bb8e7d0a2dbd514d936c58c9e94b"
+  },
+  {
+    "id": "acd6798b-5135-4cb2-b9e4-4540cf80a371",
+    "timestamp": "1970-01-01T00:00:00Z",
+    "raw_log": "FAILED_LOGIN user='sdasd' tty='ssh:notty' rhost='93.39.136.131' pid=2218 epoch=0",
+    "leaf": "0xfa9aef4a0ca38a8c17f6080d32932e2894e4972c44dc46aee77dc947fc42c0f3",
+    "batch_id": "7b5636b5-1aed-4a7b-b7e6-9a84ef1a88cb",
+    "proof": [
+      "0xfa9aef4a0ca38a8c17f6080d32932e2894e4972c44dc46aee77dc947fc42c0f3"
+    ],
+    "tx_hash": "158c256efe05607b5fdd13579a421c5e13dba455e6bddcffb4fc2083d154b628"
+  },
+  {
+    "id": "b7e59955-190c-438b-9cc6-c9bdbfdf692f",
+    "timestamp": "1970-01-01T00:00:00Z",
+    "raw_log": "FAILED_LOGIN user='sdasd' tty='ssh:notty' rhost='93.39.136.131' pid=2218 epoch=0",
+    "leaf": "0xfa9aef4a0ca38a8c17f6080d32932e2894e4972c44dc46aee77dc947fc42c0f3",
+    "batch_id": "7b5636b5-1aed-4a7b-b7e6-9a84ef1a88cb",
+    "proof": [
+      "0xfa9aef4a0ca38a8c17f6080d32932e2894e4972c44dc46aee77dc947fc42c0f3"
+    ],
+    "tx_hash": "158c256efe05607b5fdd13579a421c5e13dba455e6bddcffb4fc2083d154b628"
+  },
+  {
+    "id": "6e05d4ff-9539-4334-8db5-aa7477d1c8b3",
+    "timestamp": "1970-01-01T00:00:00Z",
+    "raw_log": "FAILED_LOGIN user='root' tty='ssh:notty' rhost='62.60.130.242' pid=2220 epoch=0",
+    "leaf": "0x8a7f825e3a1636535185479fbf0feda3f63f9e214de8e3996959a78c00b15b7c",
+    "batch_id": "1e5d4b99-b94f-43e2-a2fb-e4740128b70a",
+    "proof": [
+      "0x8a7f825e3a1636535185479fbf0feda3f63f9e214de8e3996959a78c00b15b7c"
+    ],
+    "tx_hash": "f17531d813e0448cffb6097c2fcb22c70c4a7bacb8262aea8341bd99d9f0dec9"
+  },
+  {
+    "id": "c5d5eb3d-ae6c-4332-96d5-2dbee4d89b59",
+    "timestamp": "1970-01-01T00:00:00Z",
+    "raw_log": "FAILED_LOGIN user='root' tty='ssh:notty' rhost='62.60.130.242' pid=2220 epoch=0",
+    "leaf": "0x8a7f825e3a1636535185479fbf0feda3f63f9e214de8e3996959a78c00b15b7c",
+    "batch_id": "1e5d4b99-b94f-43e2-a2fb-e4740128b70a",
+    "proof": [
+      "0x8a7f825e3a1636535185479fbf0feda3f63f9e214de8e3996959a78c00b15b7c"
+    ],
+    "tx_hash": "f17531d813e0448cffb6097c2fcb22c70c4a7bacb8262aea8341bd99d9f0dec9"
+  },
+  {
+    "id": "bff5572b-f8fd-4e89-8658-1c0ddf236e9f",
+    "timestamp": "1970-01-01T00:00:00Z",
+    "raw_log": "FAILED_LOGIN user='root' tty='ssh:notty' rhost='62.60.130.242' pid=2220 epoch=0",
+    "leaf": "0x8a7f825e3a1636535185479fbf0feda3f63f9e214de8e3996959a78c00b15b7c",
+    "batch_id": "23a1427c-671d-4b51-aede-8ba490099c44",
+    "proof": [
+      "0x8a7f825e3a1636535185479fbf0feda3f63f9e214de8e3996959a78c00b15b7c"
+    ],
+    "tx_hash": "e9cc002598f7517f37418514a7b29ff9f7f56debeab4476febda96f4d6f40af0"
+  },
+  {
+    "id": "8aed820e-1316-498c-a80e-cb5f101e590b",
+    "timestamp": "1970-01-01T00:00:00Z",
+    "raw_log": "FAILED_LOGIN user='root' tty='ssh:notty' rhost='62.60.130.242' pid=2220 epoch=0",
+    "leaf": "0x8a7f825e3a1636535185479fbf0feda3f63f9e214de8e3996959a78c00b15b7c",
+    "batch_id": "23a1427c-671d-4b51-aede-8ba490099c44",
+    "proof": [
+      "0x8a7f825e3a1636535185479fbf0feda3f63f9e214de8e3996959a78c00b15b7c"
+    ],
+    "tx_hash": "e9cc002598f7517f37418514a7b29ff9f7f56debeab4476febda96f4d6f40af0"
+  },
+  {
+    "id": "20852bad-6fb9-44a1-abb8-84a7516c5922",
+    "timestamp": "1970-01-01T00:00:00Z",
+    "raw_log": "FAILED_LOGIN user='root' tty='ssh:notty' rhost='62.60.130.242' pid=2220 epoch=0",
+    "leaf": "0x8a7f825e3a1636535185479fbf0feda3f63f9e214de8e3996959a78c00b15b7c",
+    "batch_id": "33b79602-3a93-453a-83c5-65e84266e126",
+    "proof": [],
+    "tx_hash": "356413c5fe82d6c57d01304155da3bc05ca75c99a073f231c40eef0401840681"
+  },
+  {
+    "id": "cba5fcfe-ef78-46de-a24d-0dc902593bd5",
+    "timestamp": "2026-09-17T23:36:12.869030+00:00",
+    "raw_log": "{\"event\": \"HEARTBEAT\", \"status\": \"ALIVE\", \"host\": \"0x24b6998117C0568d3A263ba509Ab14c87773ec81\", \"timestamp\": \"2026-09-17T23:36:12.868892+00:00\"}",
+    "leaf": "0x3651e66022699f03373fe0c7a8b99efbcce605c4efb333b2c6b232bb170425a6",
+    "batch_id": "a3f2f9d4-5784-4e1b-ab78-a3adaed1d0db",
+    "merkle_root": "0x3651e66022699f03373fe0c7a8b99efbcce605c4efb333b2c6b232bb170425a6",
+    "proof": [],
+    "tx_hash": "0xb45bff78968ebf358feecefbead4eaaa99d459fbe6e0f3cfaae973e7c15f4650"
+  },
+  {
+    "id": "c9a2a32d-2f99-4def-9f55-075bfc831e3d",
+    "timestamp": "2026-09-17T23:37:15.011963+00:00",
+    "raw_log": "{\"event\": \"HEARTBEAT\", \"status\": \"ALIVE\", \"host\": \"0x24b6998117C0568d3A263ba509Ab14c87773ec81\", \"timestamp\": \"2026-09-17T23:37:15.011824+00:00\"}",
+    "leaf": "0xcf53c9f10c59f7e0cb2f71cdeba81d4469977414292b8cc0dc345e60b34a504a",
+    "batch_id": "e98a04de-93dc-4018-86bb-7f2d84f8e01e",
+    "merkle_root": "0xcf53c9f10c59f7e0cb2f71cdeba81d4469977414292b8cc0dc345e60b34a504a",
+    "proof": [],
+    "tx_hash": "0x1fbc55a17b4c06351aac0218ec18bc6f336ea37faf46719a8bb2540f7befe49c"
+  },
+  {
+    "id": "5e583210-96ef-40a4-9e2e-2b9d3afc41bd",
+    "timestamp": "2026-09-17T23:38:16.780722+00:00",
+    "raw_log": "{\"event\": \"HEARTBEAT\", \"status\": \"ALIVE\", \"host\": \"0x24b6998117C0568d3A263ba509Ab14c87773ec81\", \"timestamp\": \"2026-09-17T23:38:16.780626+00:00\"}",
+    "leaf": "0x099d92df16b745b99d675c57e02169c8ad372c7c7e397b0ed79320a0bc56055a",
+    "batch_id": "a5671348-fe35-4943-8ae9-e205013ca18c",
+    "merkle_root": "0x099d92df16b745b99d675c57e02169c8ad372c7c7e397b0ed79320a0bc56055a",
+    "proof": [],
+    "tx_hash": "0x7f8260de898073c3393ce88d74e896f517c45a4507759aa67565324544e4f5f9"
+  }
+]
