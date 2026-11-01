@@ -556,11 +556,15 @@
       
       try {
         const filter = contract.filters.BatchAnchored(null, null, addr);
-        const logs = await contract.queryFilter(filter, 0, "latest");
+        
+        // Risoluzione errore range RPC Arbitrum: query dinamica ultimi 100.000 blocchi
+        const currentBlock = await provider.getBlockNumber();
+        const fromBlock = Math.max(0, currentBlock - 100000);
+        const logs = await contract.queryFilter(filter, fromBlock, "latest");
         
         if (logs.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-500">Nessun batch inviato da questo host.</td></tr>';
-          hbBadge.innerHTML = `<span class="text-slate-400">Nessun ancoraggio registrato</span>`;
+          tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-500">Nessun batch inviato di recente da questo host.</td></tr>';
+          hbBadge.innerHTML = `<span class="text-slate-400">Nessun ancoraggio recente</span>`;
           return;
         }
 
@@ -683,7 +687,7 @@
       dropZone.ondrop = (e) => { 
         e.preventDefault(); 
         e.stopPropagation();
-        dropZone.classList.remove("border-emerald-500", "bg-slate-800/80");
+        dropZone.classList.remove("border-emerald-500", "bg-slate-800/80"); 
         if (e.dataTransfer && e.dataTransfer.files.length > 0) {
           processBatchFile(e.dataTransfer.files[0]);
         }
