@@ -3,6 +3,7 @@ import time
 import json
 import uuid
 import struct
+import subprocess
 from web3 import Web3
 from eth_account import Account
 from eth_utils import keccak
@@ -12,15 +13,22 @@ RPC_URL = "https://sepolia-rollup.arbitrum.io/rpc"
 CHAIN_ID = 421614
 CONTRACT_ADDRESS = "0x95847671fD4c9aCca5C83F0b4cA570fd1de9F056"
 BTMP_PATH = "/var/log/btmp"
-ARCHIVE_PATH = "/home/LogNotaryAgent/audit_archive.json"
-ENV_PATH = "/home/LogNotaryAgent/.env"
+
+# Path relativi/assoluti allineati al repo
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ARCHIVE_PATH = os.path.join(BASE_DIR, "audit_archive.json")
+ENV_PATH = os.path.join(BASE_DIR, ".env")
+
+# Parametri TPM
+TPM_NVRAM_INDEX = "0x1500018"
+TPM2TOOLS_TCTI = "swtpm:port=2321"
 
 # Valori di default
 PRIVATE_KEY = None
 BATCH_SIZE = 2  # Impostato a 2 per vedere subito il batch con due login errati
 HEARTBEAT_TIMEOUT = 60
 
-# Parsing del file .env esistente
+# Parsing del file .env
 if os.path.exists(ENV_PATH):
     with open(ENV_PATH, "r") as f:
         for line in f:
@@ -33,6 +41,10 @@ if os.path.exists(ENV_PATH):
                 v = v.strip().strip('"').strip("'")
                 if k in ("HOST_PRIVATE_KEY", "PRIVATE_KEY"):
                     PRIVATE_KEY = v
+                elif k == "TPM_NVRAM_INDEX":
+                    TPM_NVRAM_INDEX = v
+                elif k == "TPM2TOOLS_TCTI":
+                    TPM2TOOLS_TCTI = v
                 elif k == "RPC_URL":
                     RPC_URL = v
                 elif k == "CONTRACT_ADDRESS":
@@ -43,8 +55,25 @@ if os.path.exists(ENV_PATH):
                     except ValueError:
                         pass
 
+# ================= CARICAMENTO CHIAVE DA TPM =================
+def get_key_from_tpm(index: str, tcti: str) -> str:
+    env = os.environ.copy()
+    env["TPM2TOOLS_TCTI"] = tcti
+    res = subprocess.run(
+        ["tpm2_nvread", index, "-C", "o"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        env=env
+    )
+    if res.returncode != 0:
+        raise RuntimeError(f"Errore lettura TPM NVRAM ({index}): {res.stderr.decode('utf-8', errors='replace').strip()}")
+    if len(res.stdout) != 32:
+        raise ValueError(f"Dimensione chiave TPM errata: attesi 32 bytes, ricevuti {len(res.stdout)}")
+    return "0x" + res.stdout.hex()
+
 if not PRIVATE_KEY:
-    raise ValueError("HOST_PRIVATE_KEY non trovata nel file .env")
+    print(f"[*] HOST_PRIVATE_KEY non nel .env. Caricamento da TPM NVRAM ({TPM_NVRAM_INDEX})...")
+    PRIVATE_KEY = get_key_from_tpm(TPM_NVRAM_INDEX, TPM2TOOLS_TCTI)
 
 CONTRACT_ABI = [
     {
@@ -162,7 +191,7 @@ def anchor_batch(batch_records):
 
     signed_tx = w3.eth.account.sign_transaction(tx, PRIVATE_KEY)
     tx_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
-    print(f"[TX SENT] Hash: {tx_hash.hex()} - In attesa di Arbitrum Sepolia...")
+    print(f"[TX SENT] Hash: {tx_hash.hex()} | In attesa di Arbitrum Sepolia...")
     w3.eth.wait_for_transaction_receipt(tx_hash)
     print(f"[SUCCESS] Root confermata nel blocco L2.")
 
@@ -197,6 +226,10 @@ def anchor_batch(batch_records):
 # ================= LOOP DI ASCOLTO =================
 buffer = []
 last_flush = time.time()
+
+# Crea il file se non esiste ancora
+if not os.path.exists(BTMP_PATH):
+    open(BTMP_PATH, "a").close()
 
 with open(BTMP_PATH, "rb") as f:
     f.seek(0, os.SEEK_END)
