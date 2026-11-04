@@ -19,7 +19,7 @@ BTMP_PATH = "/var/log/btmp"  # Login falliti
 WTMP_PATH = "/var/log/wtmp"  # Login riusciti
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-ARCHIVE_PATH = os.path.join(BASE_DIR, "audit_archive.json")
+ARCHIVES_BASE_DIR = os.path.join(BASE_DIR, "archives")
 ENV_PATH = os.path.join(BASE_DIR, ".env")
 
 TPM_NVRAM_KEY_INDEX = "0x1500018"
@@ -29,6 +29,7 @@ TPM2TOOLS_TCTI = "swtpm:port=2321"
 BATCH_SIZE = 2
 HEARTBEAT_TIMEOUT = 60
 
+# RICORDA: Inserisci qui l'indirizzo del tuo wallet Host registrato sulla DApp
 EXPECTED_ADDRESS = Web3.to_checksum_address("0x24b6998117C0568d3A263ba509Ab14c87773ec81")
 
 # Caricamento eventuali override da .env (senza chiavi in chiaro)
@@ -115,9 +116,13 @@ CONTRACT_ABI = [
 contract = w3.eth.contract(address=Web3.to_checksum_address(CONTRACT_ADDRESS), abi=CONTRACT_ABI)
 
 # ================= PARSER BINARIO UTMP (BTMP + WTMP) =================
+# Struct utmp Linux x86_64 (384 bytes):
+# [0] ut_type (h), [1] ut_pid (i), [2] ut_line (32s), [3] ut_id (4s),
+# [4] ut_user (32s), [5] ut_host (256s), [6] e_termination (h), [7] e_exit (h),
+# [8] ut_session (i), [9] ut_tv.tv_sec (i), [10] ut_tv.tv_usec (i), [11..14] ut_addr_v6 (4i), [15] reserved (20s)
 UTMP_STRUCT_FORMAT = "hi32s4s32s256shhiii4i20s"
 RECORD_SIZE = struct.calcsize(UTMP_STRUCT_FORMAT)  # 384 bytes
-USER_PROCESS = 7  # Costante standard Linux <utmp.h> per sessione utente attiva
+USER_PROCESS = 7  # Sessione utente autenticata in <utmp.h>
 
 def parse_utmp_record(raw_bytes: bytes, event_label: str, only_user_process: bool = False):
     if len(raw_bytes) < RECORD_SIZE:
@@ -128,7 +133,11 @@ def parse_utmp_record(raw_bytes: bytes, event_label: str, only_user_process: boo
     ut_line = fields[2].split(b'\0', 1)[0].decode('latin1', errors='replace').strip()
     ut_user = fields[4].split(b'\0', 1)[0].decode('latin1', errors='replace').strip()
     ut_host = fields[5].split(b'\0', 1)[0].decode('latin1', errors='replace').strip()
-    ut_tv_sec = fields[8]
+
+    # Estrazione corretta di tv_sec (indice 9 su x86_64) con fallback su indice 8 o time.time()
+    ut_tv_sec = fields[9] if fields[9] > 1000000000 else fields[8]
+    if ut_tv_sec <= 1000000000 or ut_tv_sec > 4102444800:
+        ut_tv_sec = int(time.time())
 
     # Per wtmp filtriamo solo i veri login utente (ignorando reboot, dead_process, runlevel)
     if only_user_process and ut_type != USER_PROCESS:
@@ -230,7 +239,7 @@ def encrypt_log(raw_text: str) -> dict:
         "tag": encrypted_data[-16:].hex()
     }
 
-# ================= ANCORAGGIO ON-CHAIN =================
+# ================= ANCORAGGIO ON-CHAIN E SALVATAGGIO GERARCHICO =================
 def anchor_batch(batch_records: list):
     if not batch_records:
         return
@@ -266,7 +275,7 @@ def anchor_batch(batch_records: list):
     except Exception:
         tx["gas"] = 350000
 
-    # Ricostruzione effimera della chiave privata: esiste solo in questo blocco
+    # Ricostruzione effimera della chiave privata: vive solo in questo blocco
     ephemeral_key = get_ephemeral_signing_key()
     try:
         signed_tx = w3.eth.account.sign_transaction(tx, ephemeral_key)
@@ -280,9 +289,11 @@ def anchor_batch(batch_records: list):
 
     archive_entries = []
     for idx, r in enumerate(batch_records):
+        # Formattazione con orario locale leggibile dall'epoch reale dell'evento
+        readable_ts = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(r["epoch"]))
         archive_entries.append({
             "id": str(uuid.uuid4()),
-            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(r["epoch"])),
+            "timestamp": readable_ts,
             "encrypted": encrypt_log(r["raw_log"]),
             "leaf": "0x" + leaves[idx].hex(),
             "batch_id": batch_id,
@@ -290,20 +301,21 @@ def anchor_batch(batch_records: list):
             "tx_hash": tx_hash.hex()
         })
 
-    existing = []
-    if os.path.exists(ARCHIVE_PATH):
-        try:
-            with open(ARCHIVE_PATH, "r") as f:
-                existing = json.load(f)
-                if not isinstance(existing, list):
-                    existing = [existing]
-        except Exception:
-            existing = []
+    # Creazione struttura gerarchica: archives / YYYY-MM / YYYY-MM-DD / batch_<batch_id>.json
+    now_local = time.localtime()
+    month_folder = time.strftime("%Y-%m", now_local)
+    day_folder = time.strftime("%Y-%m-%d", now_local)
 
-    existing.extend(archive_entries)
-    with open(ARCHIVE_PATH, "w") as f:
-        json.dump(existing, f, indent=2)
-    print(f"[ARCHIVE] {len(archive_entries)} record cifrati salvati in {ARCHIVE_PATH}\n")
+    target_dir = os.path.join(ARCHIVES_BASE_DIR, month_folder, day_folder)
+    os.makedirs(target_dir, exist_ok=True)
+
+    batch_filename = f"batch_{batch_id}.json"
+    batch_file_path = os.path.join(target_dir, batch_filename)
+
+    with open(batch_file_path, "w") as f:
+        json.dump(archive_entries, f, indent=2)
+
+    print(f"[ARCHIVE] {len(archive_entries)} record cifrati salvati in: {batch_file_path}\n")
 
 # ================= LOOP PRINCIPALE =================
 if __name__ == "__main__":
@@ -311,6 +323,7 @@ if __name__ == "__main__":
     wtmp_reader = UtmpStreamReader(WTMP_PATH, "SUCCESS_LOGIN", only_user_process=True)
 
     print(f"[*] Monitoraggio attivo su {BTMP_PATH} (Falliti) e {WTMP_PATH} (Riusciti)...")
+    print(f"[*] Directory archivi strutturati: {ARCHIVES_BASE_DIR}/<YYYY-MM>/<YYYY-MM-DD>/batch_<id>.json")
 
     buffer = []
     last_flush = time.time()
