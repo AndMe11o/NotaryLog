@@ -30,7 +30,7 @@ BATCH_SIZE = 2
 HEARTBEAT_TIMEOUT = 60
 
 # RICORDA: Inserisci qui l'indirizzo del tuo wallet Host registrato sulla DApp
-EXPECTED_ADDRESS = Web3.to_checksum_address("0x24b6998117C0568d3A263ba509Ab14c87773ec81")
+EXPECTED_ADDRESS = Web3.to_checksum_address("0x0125Bd28Df8adC95A360A6317B8d175813EA008D")
 
 # Caricamento eventuali override da .env (senza chiavi in chiaro)
 if os.path.exists(ENV_PATH):
