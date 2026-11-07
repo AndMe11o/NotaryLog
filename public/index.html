@@ -19,7 +19,7 @@
       <div>
         <h1 class="text-2xl font-black text-white tracking-wide">L2 Merkle Sentinel</h1>
         <p class="text-xs text-slate-400 mt-2 leading-relaxed">
-          Piattaforma enterprise di notarizzazione forense tramite Merkle Tree su Arbitrum Sepolia L2.
+          Piattaforma enterprise di notarizzazione forense tramite Merkle Tree e Hash Chain su Arbitrum Sepolia L2.
         </p>
       </div>
 
@@ -49,7 +49,7 @@
           <span class="inline-block w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></span>
           <h1 class="text-xl font-bold text-sky-400 tracking-wide">Layer 2 Merkle Sentinel</h1>
         </div>
-        <p class="text-xs text-slate-400 mt-0.5">Arbitrum Sepolia Testnet &bull; Smart Contract Audit Trail</p>
+        <p class="text-xs text-slate-400 mt-0.5">Arbitrum Sepolia Testnet &bull; Smart Contract Audit Trail &bull; Batch Hash Chain</p>
       </div>
       <div class="flex items-center gap-3">
         <div class="text-right">
@@ -158,17 +158,25 @@
         </div>
       </div>
 
-      <!-- BATCH FORENSIC VERIFIER (DRAG & DROP + AES-256-GCM DECRYPTION) -->
+      <!-- BATCH FORENSIC VERIFIER (MULTI-FILE DRAG & DROP + AES-GCM + HASH CHAIN GAP DETECTOR) -->
       <div class="bg-slate-800 p-6 rounded-xl border border-emerald-500/40 space-y-5 shadow-lg">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
           <div>
             <h2 class="text-md font-bold text-emerald-400 flex items-center gap-2">
-              <span>🌳</span> Merkle Forensic Verifier &amp; AES-GCM Decryptor (Client-Side)
+              <span>🌳</span> Merkle Forensic Verifier, AES-GCM Decryptor &amp; Hash Chain Auditor
             </h2>
             <p class="text-xs text-slate-400 mt-1">
-              Inserisci la chiave AES-256 dell'host e carica <code class="text-slate-300 font-mono">audit_archive.json</code>. Il browser decifrerà i payload in RAM via WebCrypto, ricalcolerà le foglie <code class="text-emerald-300">keccak256(raw_log)</code> e verificherà la corrispondenza con le Merkle Root su Arbitrum Sepolia.
+              Trascina <b>uno o più file batch JSON</b> (anche non consecutivi, es. #5, #6, #7, #9). Il sistema decifrerà i log in RAM, verificherà ogni Merkle Root su Arbitrum Sepolia e analizzerà la continuità della <b>Batch Hash Chain</b> segnalando eventuali batch mancanti o omessi.
             </p>
           </div>
+          <button 
+            id="clearLoadedBatchesBtn"
+            type="button"
+            onclick="clearLoadedBatches()"
+            class="hidden bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold transition whitespace-nowrap"
+          >
+            🧹 Svuota Batch Caricati
+          </button>
         </div>
 
         <!-- Chiave di Decifratura AES-256-GCM -->
@@ -196,7 +204,6 @@
             >
               🔓 Decifra e Riverifica
             </button>
-            <!-- NUOVO TASTO CANCELLAZIONE CHIAVE -->
             <button 
               id="clearAesKeyBtn"
               type="button" 
@@ -212,32 +219,49 @@
           </p>
         </div>
 
-        <!-- File Upload Area -->
+        <!-- Multi-File Upload Area -->
         <div id="dropZone" class="border-2 border-dashed border-slate-700 hover:border-emerald-500/60 rounded-xl p-6 text-center bg-slate-900/60 cursor-pointer transition">
-          <input type="file" id="batchFileInput" accept=".json,.log,.txt" class="hidden" onchange="handleFileSelected(event)" />
+          <input type="file" id="batchFileInput" accept=".json,.log,.txt" multiple class="hidden" onchange="handleFileSelected(event)" />
           <div class="space-y-2 pointer-events-none">
-            <div class="text-3xl">📄</div>
+            <div class="text-3xl">📚</div>
             <div class="text-sm font-semibold text-slate-300">
-              Trascina qui l'archivio <code class="text-emerald-300">audit_archive.json</code> o <span class="text-emerald-400 underline">selezionalo</span>
+              Trascina qui uno o più file <code class="text-emerald-300">seq_XXXXX_batch_*.json</code> o <span class="text-emerald-400 underline">selezionali</span>
             </div>
-            <div class="text-xs text-slate-500">Supporta record cifrati AES-256-GCM (con <code class="text-slate-400">ciphertext</code>, <code class="text-slate-400">nonce</code>, <code class="text-slate-400">tag</code>) e log legacy in chiaro</div>
+            <div class="text-xs text-slate-500">
+              Puoi selezionare contemporaneamente più file batch (anche non consecutivi) per verificare sia le Merkle Proof L2 sia l'integrità della Hash Chain
+            </div>
           </div>
         </div>
 
-        <!-- Stato Analisi e Contatori -->
-        <div id="batchSummaryBar" class="hidden grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <!-- Stato Analisi e Contatori (4 Metriche) -->
+        <div id="batchSummaryBar" class="hidden grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div class="bg-slate-900 border border-slate-700 p-3 rounded-lg text-center">
             <span class="text-[11px] text-slate-400 uppercase tracking-wider block">Log Totali</span>
             <b id="batchTotalCount" class="text-xl text-white">0</b>
           </div>
           <div class="bg-slate-900 border border-emerald-800/60 p-3 rounded-lg text-center">
-            <span class="text-[11px] text-emerald-400 uppercase tracking-wider block">Integri (Root Match)</span>
+            <span class="text-[11px] text-emerald-400 uppercase tracking-wider block">Log Integri (L2 OK)</span>
             <b id="batchValidCount" class="text-xl text-emerald-400">0</b>
           </div>
           <div class="bg-slate-900 border border-rose-800/60 p-3 rounded-lg text-center">
-            <span class="text-[11px] text-rose-400 uppercase tracking-wider block">Manomessi / Chiave Errata</span>
+            <span class="text-[11px] text-rose-400 uppercase tracking-wider block">Log Manomessi / Lock</span>
             <b id="batchTamperedCount" class="text-xl text-rose-400">0</b>
           </div>
+          <div class="bg-slate-900 border border-amber-700/60 p-3 rounded-lg text-center">
+            <span class="text-[11px] text-amber-400 uppercase tracking-wider block">Stato Hash Chain</span>
+            <b id="batchChainStatusText" class="text-sm font-mono text-amber-300 mt-1 block">--</b>
+          </div>
+        </div>
+
+        <!-- PANNELLO ANALISI CONTINUITÀ HASH CHAIN E RILEVAMENTO GAP -->
+        <div id="chainAuditPanel" class="hidden bg-slate-900/95 border border-slate-700 rounded-xl p-4 space-y-3">
+          <div class="flex flex-wrap justify-between items-center gap-2 border-b border-slate-800 pb-2">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
+              <span>⛓️</span> Analisi Concatenazione Crittografica dei Batch (Anti-Batch-Drop)
+            </h3>
+            <span id="chainSummaryBadge" class="text-[11px] font-mono px-2.5 py-0.5 rounded font-semibold"></span>
+          </div>
+          <div id="chainTimelineContainer" class="space-y-2 text-xs font-mono max-h-60 overflow-y-auto pr-1"></div>
         </div>
 
         <!-- Tabella Risultati -->
@@ -247,6 +271,7 @@
               <thead class="bg-slate-900 text-slate-400 uppercase sticky top-0 border-b border-slate-700">
                 <tr>
                   <th class="p-2.5">Esito</th>
+                  <th class="p-2.5">Seq #</th>
                   <th class="p-2.5">Log ID / Timestamp</th>
                   <th class="p-2.5">Log Decifrato (Plaintext)</th>
                   <th class="p-2.5">Batch ID on-chain</th>
@@ -361,33 +386,12 @@
       }
     }
 
-    // Azzera il campo input e riverifica i log mascherandoli nuovamente
-async function clearAesKey() {
-  const input = document.getElementById("auditorAesKey");
-  if (input) {
-    input.value = "";
-  }
-  
-  // Cancella anche l'input di generazione dell'admin se valorizzato
-  const genInput = document.getElementById("generatedAesKey");
-  if (genInput) {
-    genInput.value = "";
-  }
-
-  // Se c'è già un file batch caricato, rilancia la verifica:
-  // senza la chiave, i log torneranno istantaneamente cifrati / bloccati!
-  if (typeof lastLoadedEntries !== "undefined" && lastLoadedEntries && lastLoadedEntries.length > 0) {
-    await reverifyLastLoadedEntries();
-  }
-}
-
     // --- GENERATORE CHIAVE AES E SNIPPET TPM (ADMIN ONBOARDING) ---
     function generateHostAesKey() {
       const bytes = new Uint8Array(32);
       window.crypto.getRandomValues(bytes);
       const hexKey = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
       document.getElementById("generatedAesKey").value = hexKey;
-      // Pre-popola anche il campo del verifier per comodità
       const auditorInput = document.getElementById("auditorAesKey");
       if (auditorInput && !auditorInput.value) {
         auditorInput.value = hexKey;
@@ -398,16 +402,11 @@ async function clearAesKey() {
       const key = document.getElementById("generatedAesKey").value.trim();
       if (!key) return alert("Clicca prima su 'Genera Nuova Chiave AES'!");
 
-      const snippet = `export TPM2TOOLS_TCTI="swtpm:port=2321"
-` +
-        `tpm2_nvundefine 0x1500019 -C o 2>/dev/null || true
-` +
-        `tpm2_nvdefine 0x1500019 -C o -s 32 -a "ownerread|ownerwrite"
-` +
-        `./venv/bin/python3 -c "open('/tmp/aes.bin','wb').write(bytes.fromhex('${key}'))"
-` +
-        `tpm2_nvwrite 0x1500019 -C o -i /tmp/aes.bin && rm -f /tmp/aes.bin
-` +
+      const snippet = `export TPM2TOOLS_TCTI="swtpm:port=2321"\n` +
+        `tpm2_nvundefine 0x1500019 -C o 2>/dev/null || true\n` +
+        `tpm2_nvdefine 0x1500019 -C o -s 32 -a "ownerread|ownerwrite"\n` +
+        `./venv/bin/python3 -c "open('/tmp/aes.bin','wb').write(bytes.fromhex('${key}'))"\n` +
+        `tpm2_nvwrite 0x1500019 -C o -i /tmp/aes.bin && rm -f /tmp/aes.bin\n` +
         `echo '[+] Chiave AES configurata con successo nello slot TPM 0x1500019!'`;
 
       copyToClipboard(snippet, btn);
@@ -417,6 +416,29 @@ async function clearAesKey() {
       const input = document.getElementById("auditorAesKey");
       if (!input) return;
       input.type = (input.type === "password") ? "text" : "password";
+    }
+
+    async function clearAesKey() {
+      const input = document.getElementById("auditorAesKey");
+      if (input) input.value = "";
+      const genInput = document.getElementById("generatedAesKey");
+      if (genInput) genInput.value = "";
+
+      if (typeof lastLoadedEntries !== "undefined" && lastLoadedEntries && lastLoadedEntries.length > 0) {
+        await reverifyLastLoadedEntries();
+      }
+    }
+
+    function clearLoadedBatches() {
+      lastLoadedEntries = [];
+      lastLoadedBatchesMap = {};
+      document.getElementById("batchSummaryBar").classList.add("hidden");
+      document.getElementById("chainAuditPanel").classList.add("hidden");
+      document.getElementById("batchResultsContainer").classList.add("hidden");
+      document.getElementById("reverifyBtn").classList.add("hidden");
+      document.getElementById("clearLoadedBatchesBtn").classList.add("hidden");
+      document.getElementById("batchTableBody").innerHTML = "";
+      document.getElementById("chainTimelineContainer").innerHTML = "";
     }
 
     // --- MOTORE DECIFRATURA WEBCRYPTO AES-256-GCM ---
@@ -443,7 +465,6 @@ async function clearAesKey() {
       const ciphertextBytes = hexToBytes(encryptedObj.ciphertext);
       const tagBytes = hexToBytes(encryptedObj.tag);
 
-      // WebCrypto AES-GCM richiede ciphertext + tag concatenati
       const combinedData = new Uint8Array(ciphertextBytes.length + tagBytes.length);
       combinedData.set(ciphertextBytes);
       combinedData.set(tagBytes, ciphertextBytes.length);
@@ -485,9 +506,10 @@ async function clearAesKey() {
     let currentSelectedHost = null;
     let isCurrentAdmin = false;
     let isAuthenticated = false;
-    let lastLoadedEntries = null;
+    let lastLoadedEntries = [];
+    let lastLoadedBatchesMap = {};
 
-    // --- MOTORE CRITTOGRAFICO MERKLE (CLIENT-SIDE) ---
+    // --- MOTORE CRITTOGRAFICO MERKLE & HASH CHAIN (CLIENT-SIDE) ---
     const MerkleEngine = {
       combineHashes: (a, b) => {
         const aClean = a.toLowerCase();
@@ -503,6 +525,10 @@ async function clearAesKey() {
           currentHash = MerkleEngine.combineHashes(currentHash, p);
         }
         return currentHash;
+      },
+      computeBatchChainHash: (merkleRootHex, prevBatchHashHex, batchId, seqNum) => {
+        const payload = `${String(merkleRootHex).toLowerCase()}|${String(prevBatchHashHex).toLowerCase()}|${batchId}|${seqNum}`;
+        return ethers.keccak256(ethers.toUtf8Bytes(payload));
       }
     };
 
@@ -722,8 +748,6 @@ async function clearAesKey() {
       
       try {
         const filter = contract.filters.BatchAnchored(null, null, addr);
-        
-        // Risoluzione errore range RPC Arbitrum: query dinamica ultimi 100.000 blocchi
         const currentBlock = await provider.getBlockNumber();
         const fromBlock = Math.max(0, currentBlock - 100000);
         const logs = await contract.queryFilter(filter, fromBlock, "latest");
@@ -734,7 +758,6 @@ async function clearAesKey() {
           return;
         }
 
-        // Calcolo Ultimo Heartbeat On-Chain
         const latestEvent = logs[logs.length - 1];
         const latestArgs = latestEvent.args;
         const latestTimestampSec = Number(latestArgs.timestamp !== undefined ? latestArgs.timestamp : latestArgs[3]);
@@ -829,7 +852,7 @@ async function clearAesKey() {
       document.getElementById("mainView").classList.remove("hidden");
     }
 
-    // --- FORENSIC MERKLE VERIFIER + AES-GCM DECRYPTION ---
+    // --- FORENSIC MERKLE VERIFIER + MULTI-FILE HASH CHAIN AUDITOR ---
     function setupDragAndDrop() {
       const dropZone = document.getElementById("dropZone");
       const fileInput = document.getElementById("batchFileInput");
@@ -854,50 +877,107 @@ async function clearAesKey() {
         e.preventDefault(); 
         e.stopPropagation();
         dropZone.classList.remove("border-emerald-500", "bg-slate-800/80"); 
-        if (e.dataTransfer && e.dataTransfer.files.length > 0) {
-          processBatchFile(e.dataTransfer.files[0]);
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+          processMultipleBatchFiles(e.dataTransfer.files);
         }
       };
     }
 
     function handleFileSelected(event) {
       if (event.target && event.target.files && event.target.files.length > 0) {
-        processBatchFile(event.target.files[0]);
+        processMultipleBatchFiles(event.target.files);
       }
     }
 
     async function reverifyLastLoadedEntries() {
       if (!lastLoadedEntries || lastLoadedEntries.length === 0) return;
-      await verifyMerkleBatch(lastLoadedEntries);
+      await verifyMerkleBatch(lastLoadedEntries, lastLoadedBatchesMap);
     }
 
-    async function processBatchFile(file) {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        try {
-          const content = e.target.result.trim();
-          let parsedEntries = [];
+    function readFileAsText(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve({ name: file.name, content: e.target.result });
+        reader.onerror = (err) => reject(err);
+        reader.readAsText(file);
+      });
+    }
 
-          try {
-            let json = JSON.parse(content);
-            let rawList = [];
+    function parseBatchContent(content, fileName) {
+      let entries = [];
+      let batchMeta = null;
 
-            if (Array.isArray(json)) {
-              rawList = json;
-            } else if (typeof json === 'object' && json !== null) {
-              if (Array.isArray(json.logs)) {
-                rawList = json.logs;
-              } else if (json.id || json.log_id || json.batch_id) {
-                rawList = [json];
-              } else {
-                rawList = Object.values(json);
-              }
+      try {
+        let json = JSON.parse(content.trim());
+        let rawList = [];
+
+        if (Array.isArray(json)) {
+          rawList = json;
+        } else if (typeof json === 'object' && json !== null) {
+          if (Array.isArray(json.logs)) {
+            rawList = json.logs;
+            if (json.batch_id || json.sequence_num !== undefined) {
+              batchMeta = {
+                sequence_num: json.sequence_num !== undefined ? Number(json.sequence_num) : null,
+                batch_id: String(json.batch_id || ""),
+                prev_batch_hash: String(json.prev_batch_hash || ""),
+                merkle_root: String(json.merkle_root || ""),
+                batch_hash: String(json.batch_hash || ""),
+                file_name: fileName
+              };
             }
+          } else if (json.id || json.log_id || json.batch_id) {
+            rawList = [json];
+          } else {
+            rawList = Object.values(json);
+          }
+        }
 
-            for (const item of rawList) {
-              if (typeof item !== 'object' || item === null) continue;
-              parsedEntries.push({
+        for (const item of rawList) {
+          if (typeof item !== 'object' || item === null) continue;
+          const seqNum = item.sequence_num !== undefined ? Number(item.sequence_num) : (batchMeta ? batchMeta.sequence_num : null);
+          const bId = item.batch_id || item.batchId || (batchMeta ? batchMeta.batch_id : "");
+          const prevH = item.prev_batch_hash || (batchMeta ? batchMeta.prev_batch_hash : "");
+          const bHash = item.batch_hash || (batchMeta ? batchMeta.batch_hash : "");
+          const mRoot = item.merkle_root || (batchMeta ? batchMeta.merkle_root : "");
+
+          if (!batchMeta && bId) {
+            batchMeta = {
+              sequence_num: seqNum,
+              batch_id: String(bId),
+              prev_batch_hash: String(prevH),
+              merkle_root: String(mRoot),
+              batch_hash: String(bHash),
+              file_name: fileName
+            };
+          }
+
+          entries.push({
+            id: item.id || item.log_id || item.uuid || "N/D",
+            sequence_num: seqNum,
+            prev_batch_hash: prevH,
+            batch_hash: bHash,
+            merkle_root: mRoot,
+            timestamp: item.timestamp || new Date().toISOString(),
+            raw_log: item.raw_log || item.raw || item.message || item.log || "",
+            encrypted: item.encrypted || null,
+            leaf: item.leaf || null,
+            batch_id: bId,
+            proof: Array.isArray(item.proof) ? item.proof : []
+          });
+        }
+      } catch (jsonErr) {
+        const lines = content.split(/\r?\n/).filter(l => l.trim().length > 0);
+        for (const line of lines) {
+          try {
+            const item = JSON.parse(line.trim().replace(/,$/, ''));
+            if (typeof item === 'object' && item !== null) {
+              entries.push({
                 id: item.id || item.log_id || item.uuid || "N/D",
+                sequence_num: item.sequence_num !== undefined ? Number(item.sequence_num) : null,
+                prev_batch_hash: item.prev_batch_hash || "",
+                batch_hash: item.batch_hash || "",
+                merkle_root: item.merkle_root || "",
                 timestamp: item.timestamp || new Date().toISOString(),
                 raw_log: item.raw_log || item.raw || item.message || item.log || "",
                 encrypted: item.encrypted || null,
@@ -906,48 +986,242 @@ async function clearAesKey() {
                 proof: Array.isArray(item.proof) ? item.proof : []
               });
             }
-
-          } catch (jsonErr) {
-            const lines = content.split(/\r?\n/).filter(l => l.trim().length > 0);
-            for (const line of lines) {
-              try {
-                const item = JSON.parse(line.trim().replace(/,$/, ''));
-                if (typeof item === 'object' && item !== null) {
-                  parsedEntries.push({
-                    id: item.id || item.log_id || item.uuid || "N/D",
-                    timestamp: item.timestamp || new Date().toISOString(),
-                    raw_log: item.raw_log || item.raw || item.message || item.log || "",
-                    encrypted: item.encrypted || null,
-                    leaf: item.leaf || null,
-                    batch_id: item.batch_id || item.batchId || "",
-                    proof: Array.isArray(item.proof) ? item.proof : []
-                  });
-                }
-              } catch (_) {}
-            }
-          }
-
-          if (parsedEntries.length === 0) {
-            alert("Nessun record valido rilevato nel file caricato.");
-            return;
-          }
-
-          lastLoadedEntries = parsedEntries;
-          document.getElementById("reverifyBtn").classList.remove("hidden");
-          await verifyMerkleBatch(parsedEntries);
-
-        } catch (err) {
-          alert("Errore nella lettura del file: " + err.message);
+          } catch (_) {}
         }
-      };
-      reader.readAsText(file);
+      }
+
+      return { entries, batchMeta };
     }
 
-    async function verifyMerkleBatch(entries) {
+    async function processMultipleBatchFiles(fileList) {
+      try {
+        const filesArray = Array.from(fileList);
+        const readResults = await Promise.all(filesArray.map(f => readFileAsText(f)));
+
+        // Cumula con eventuali batch già caricati nella sessione (evitando duplicati sullo stesso log id)
+        const existingLogIds = new Set(lastLoadedEntries.map(e => `${e.batch_id}_${e.id}`));
+        let addedCount = 0;
+
+        for (const res of readResults) {
+          const parsed = parseBatchContent(res.content, res.name);
+          if (parsed.batchMeta && parsed.batchMeta.batch_id) {
+            lastLoadedBatchesMap[parsed.batchMeta.batch_id] = parsed.batchMeta;
+          }
+          for (const entry of parsed.entries) {
+            const uniqueKey = `${entry.batch_id}_${entry.id}`;
+            if (!existingLogIds.has(uniqueKey)) {
+              existingLogIds.add(uniqueKey);
+              lastLoadedEntries.push(entry);
+              addedCount++;
+            }
+            if (entry.batch_id && !lastLoadedBatchesMap[entry.batch_id]) {
+              lastLoadedBatchesMap[entry.batch_id] = {
+                sequence_num: entry.sequence_num,
+                batch_id: entry.batch_id,
+                prev_batch_hash: entry.prev_batch_hash || "",
+                merkle_root: entry.merkle_root || "",
+                batch_hash: entry.batch_hash || "",
+                file_name: res.name
+              };
+            }
+          }
+        }
+
+        if (lastLoadedEntries.length === 0) {
+          alert("Nessun record valido rilevato nei file caricati.");
+          return;
+        }
+
+        // Ordina i log per sequence_num crescente (se presente)
+        lastLoadedEntries.sort((a, b) => {
+          const seqA = (a.sequence_num !== null && a.sequence_num !== undefined) ? a.sequence_num : 999999;
+          const seqB = (b.sequence_num !== null && b.sequence_num !== undefined) ? b.sequence_num : 999999;
+          return seqA - seqB;
+        });
+
+        document.getElementById("reverifyBtn").classList.remove("hidden");
+        document.getElementById("clearLoadedBatchesBtn").classList.remove("hidden");
+        await verifyMerkleBatch(lastLoadedEntries, lastLoadedBatchesMap);
+
+      } catch (err) {
+        alert("Errore nella lettura dei file: " + err.message);
+      }
+    }
+
+    function evaluateBatchHashChain(batchesMap, onChainRootCache, computedBatchRoots) {
+      const panel = document.getElementById("chainAuditPanel");
+      const timeline = document.getElementById("chainTimelineContainer");
+      const summaryBadge = document.getElementById("chainSummaryBadge");
+      const metricChainText = document.getElementById("batchChainStatusText");
+
+      const batchList = Object.values(batchesMap).filter(b => b && b.batch_id);
+      if (batchList.length === 0) {
+        panel.classList.add("hidden");
+        metricChainText.innerText = "N/D";
+        return;
+      }
+
+      panel.classList.remove("hidden");
+
+      const sequencedBatches = batchList
+        .filter(b => b.sequence_num !== null && b.sequence_num !== undefined && !isNaN(b.sequence_num))
+        .sort((a, b) => a.sequence_num - b.sequence_num);
+
+      const legacyBatches = batchList.filter(b => b.sequence_num === null || b.sequence_num === undefined || isNaN(b.sequence_num));
+
+      if (sequencedBatches.length === 0) {
+        summaryBadge.className = "text-[11px] font-mono px-2.5 py-0.5 rounded font-semibold bg-slate-800 text-slate-300";
+        summaryBadge.innerText = "FORMATO LEGACY (Senza Sequence #)";
+        metricChainText.innerText = "Legacy (No Seq)";
+        metricChainText.className = "text-sm font-mono text-slate-400 mt-1 block";
+        timeline.innerHTML = `<div class="p-2.5 rounded bg-slate-950 border border-slate-800 text-slate-400">I batch caricati non contengono metadati <code class="text-slate-300">sequence_num</code> / <code class="text-slate-300">batch_hash</code>. Verifica Merkle eseguita singolarmente.</div>`;
+        return;
+      }
+
+      let html = "";
+      let gapsCount = 0;
+      letmissingTotal = 0;
+      let brokenLinks = 0;
+
+      for (let i = 0; i < sequencedBatches.length; i++) {
+        const curr = sequencedBatches[i];
+        const seq = curr.sequence_num;
+        const effectiveRoot = curr.merkle_root || computedBatchRoots[curr.batch_id] || onChainRootCache[curr.batch_id] || "";
+
+        // 1. Verifica integrità dell'hash del singolo batch (auto-consistenza)
+        let selfHashValid = false;
+        if (effectiveRoot && curr.prev_batch_hash && curr.batch_hash) {
+          const expectedBatchHash = MerkleEngine.computeBatchChainHash(
+            effectiveRoot,
+            curr.prev_batch_hash,
+            curr.batch_id,
+            seq
+          );
+          selfHashValid = (expectedBatchHash.toLowerCase() === curr.batch_hash.toLowerCase());
+        }
+
+        // 2. Controllo rispetto al batch precedente caricato
+        if (i > 0) {
+          const prev = sequencedBatches[i - 1];
+          const delta = seq - prev.sequence_num;
+
+          if (delta === 1) {
+            // Batch consecutivi: verifichiamo il link crittografico prev_batch_hash == prev.batch_hash
+            const linkMatch = (curr.prev_batch_hash && prev.batch_hash && curr.prev_batch_hash.toLowerCase() === prev.batch_hash.toLowerCase());
+            if (!linkMatch) {
+              brokenLinks++;
+              html += `
+                <div class="p-2.5 rounded-lg bg-rose-950/60 border border-rose-700 text-rose-200 flex items-center justify-between">
+                  <div>
+                    <b>🚨 ROTTURA CRITTOGRAFICA CATENA tra Batch #${prev.sequence_num} e Batch #${seq}</b>
+                    <div class="text-[11px] text-rose-300 mt-0.5">
+                      Il <code class="text-white">prev_batch_hash</code> dichiarato dal Batch #${seq} (${curr.prev_batch_hash.slice(0, 12)}...) NON combacia con il <code class="text-white">batch_hash</code> del Batch #${prev.sequence_num} (${prev.batch_hash.slice(0, 12)}...)!
+                    </div>
+                  </div>
+                  <span class="px-2 py-0.5 rounded bg-rose-900 text-rose-200 text-[10px] font-bold">CHAIN BROKEN &cross;</span>
+                </div>
+              `;
+            }
+          } else if (delta > 1) {
+            // Rilevato GAP (es. caricato 5, 6, 7 e poi 9 -> manca #8)
+            gapsCount++;
+            const missingNums = [];
+            for (let m = prev.sequence_num + 1; m < seq; m++) {
+              missingNums.push(`#${m}`);
+            }
+            missingTotal += missingNums.length;
+
+            html += `
+              <div class="p-2.5 rounded-lg bg-amber-950/50 border border-amber-600/70 text-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <b>⚠️ GAP DI CONTINUITÀ RILEVATO: ${missingNums.length === 1 ? 'Manca il Batch ' + missingNums[0] : 'Mancano i Batch ' + missingNums.join(', ')}</b>
+                  <div class="text-[11px] text-amber-300/90 mt-0.5">
+                    Salto sequenziale da <b>#${prev.sequence_num}</b> a <b>#${seq}</b>. Il Batch #${seq} punta a <code class="text-white">prev_hash=${curr.prev_batch_hash ? curr.prev_batch_hash.slice(0, 14) + '...' : 'N/D'}</code> (appartenente al Batch #${seq - 1} non caricato).
+                  </div>
+                </div>
+                <span class="px-2 py-0.5 rounded bg-amber-900/80 border border-amber-600 text-amber-200 text-[10px] font-bold whitespace-nowrap">
+                  MANCA ${missingNums.join(', ')}
+                </span>
+              </div>
+            `;
+          }
+        } else if (seq > 1) {
+          // L'auditor ha iniziato a caricare da un batch > 1 (es. parte da #5)
+          html += `
+            <div class="p-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-400 flex items-center justify-between">
+              <span>ℹ️ Finestra di audit parziale: caricamento iniziato dal <b>Batch #${seq}</b> (Batch #1..#${seq - 1} non inclusi nella selezione).</span>
+              <span class="text-[10px] text-slate-500">PARTIAL WINDOW</span>
+            </div>
+          `;
+        }
+
+        // Riga stato del singolo Batch nella catena
+        const onChainRoot = onChainRootCache[curr.batch_id];
+        const isAnchored = (onChainRoot && onChainRoot !== ethers.ZeroHash);
+        let linkStatusText = (seq === 1) ? "GENESIS (#1)" : "LINKED";
+        if (i > 0 && sequencedBatches[i - 1].sequence_num === seq - 1) {
+          const prev = sequencedBatches[i - 1];
+          if (curr.prev_batch_hash.toLowerCase() === prev.batch_hash.toLowerCase()) {
+            linkStatusText = `CONCATENATO A #${seq - 1} &check;`;
+          } else {
+            linkStatusText = `LINK ROTTO CON #${seq - 1} &cross;`;
+          }
+        } else if (i > 0 && sequencedBatches[i - 1].sequence_num < seq - 1) {
+          linkStatusText = `DOPO GAP (Attende #${seq - 1})`;
+        }
+
+        html += `
+          <div class="p-2.5 rounded-lg bg-slate-950/90 border ${selfHashValid && isAnchored ? 'border-emerald-800/50' : 'border-rose-800/60'} flex flex-wrap items-center justify-between gap-2">
+            <div class="space-y-0.5">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded bg-sky-950 border border-sky-700 text-sky-300 font-bold">Batch #${seq}</span>
+                <span class="text-slate-300">ID: <code class="text-sky-300">${curr.batch_id.slice(0, 8)}...</code></span>
+                <span class="text-[10px] text-slate-500">(${curr.file_name || 'file'})</span>
+              </div>
+              <div class="text-[11px] text-slate-400">
+                PrevHash: <code class="text-slate-300">${curr.prev_batch_hash ? curr.prev_batch_hash.slice(0, 14) + '...' : 'N/D'}</code>
+                &rarr; BatchHash: <code class="text-emerald-300">${curr.batch_hash ? curr.batch_hash.slice(0, 14) + '...' : 'N/D'}</code>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${selfHashValid ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-rose-950 text-rose-300 border border-rose-800'}">
+                ${selfHashValid ? 'HASH OK &check;' : 'HASH TAMPERED &cross;'}
+              </span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${linkStatusText.includes('ROTTO') ? 'bg-rose-950 text-rose-300 border border-rose-800' : (linkStatusText.includes('GAP') ? 'bg-amber-950 text-amber-300 border border-amber-700' : 'bg-slate-800 text-sky-300 border border-slate-700')}">
+                ${linkStatusText}
+              </span>
+            </div>
+          </div>
+        `;
+      }
+
+      timeline.innerHTML = html;
+
+      if (brokenLinks > 0) {
+        summaryBadge.className = "text-[11px] font-mono px-2.5 py-0.5 rounded font-semibold bg-rose-950 text-rose-300 border border-rose-700";
+        summaryBadge.innerText = `CATENA COMPROMESSA (${brokenLinks} link corrotti)`;
+        metricChainText.innerText = "CORROTTA ✗";
+        metricChainText.className = "text-sm font-mono text-rose-400 mt-1 block font-bold";
+      } else if (gapsCount > 0) {
+        summaryBadge.className = "text-[11px] font-mono px-2.5 py-0.5 rounded font-semibold bg-amber-950 text-amber-300 border border-amber-700";
+        summaryBadge.innerText = `${sequencedBatches.length} BATCH VALIDI | ${missingTotal} BATCH MANCANTI`;
+        metricChainText.innerText = `GAP (${missingTotal} mancanti) ⚠️`;
+        metricChainText.className = "text-sm font-mono text-amber-400 mt-1 block font-bold";
+      } else {
+        const firstSeq = sequencedBatches[0].sequence_num;
+        const lastSeq = sequencedBatches[sequencedBatches.length - 1].sequence_num;
+        summaryBadge.className = "text-[11px] font-mono px-2.5 py-0.5 rounded font-semibold bg-emerald-950 text-emerald-300 border border-emerald-700";
+        summaryBadge.innerText = `CATENA CONTINUA E INTEGRA (#${firstSeq} → #${lastSeq}) ✓`;
+        metricChainText.innerText = `CONTINUA (#${firstSeq}→#${lastSeq}) ✓`;
+        metricChainText.className = "text-sm font-mono text-emerald-400 mt-1 block font-bold";
+      }
+    }
+
+    async function verifyMerkleBatch(entries, batchesMap = {}) {
       document.getElementById("batchSummaryBar").classList.remove("hidden");
       document.getElementById("batchResultsContainer").classList.remove("hidden");
       const tbody = document.getElementById("batchTableBody");
-      tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-400">Decifratura AES-256-GCM e verifica crittografica Merkle on-chain in corso...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-400">Decifratura AES-256-GCM, verifica Merkle L2 e analisi Hash Chain in corso...</td></tr>';
       
       let valid = 0, tampered = 0;
       let rowsHtml = "";
@@ -957,6 +1231,7 @@ async function clearAesKey() {
 
       const aesKeyHex = document.getElementById("auditorAesKey").value.trim();
       const rootCache = {};
+      const computedBatchRoots = {};
 
       for (let i = 0; i < entries.length; i++) {
         const entry = entries[i];
@@ -967,7 +1242,6 @@ async function clearAesKey() {
         try {
           let plaintextLog = entry.raw_log;
 
-          // Se il record è cifrato con AES-256-GCM, decifriamolo in RAM
           if (entry.encrypted && typeof entry.encrypted === "object") {
             try {
               plaintextLog = await decryptLogRecord(entry.encrypted, aesKeyHex);
@@ -985,9 +1259,9 @@ async function clearAesKey() {
             throw new Error("Campi mancanti");
           }
           
-          // RIGOROSITÀ FORENSE: Calcolo sempre dal testo decifrato per rilevare manomissioni
           const computedLeaf = MerkleEngine.hashLeaf(plaintextLog);
           const computedRoot = MerkleEngine.computeRoot(computedLeaf, entry.proof);
+          computedBatchRoots[entry.batch_id] = computedRoot;
 
           if (!rootCache[entry.batch_id]) {
             rootCache[entry.batch_id] = await contract.batchRoots(entry.batch_id);
@@ -1006,6 +1280,7 @@ async function clearAesKey() {
 
         const logIdFull = String(entry.id);
         const batchIdFull = String(entry.batch_id);
+        const seqDisplay = (entry.sequence_num !== null && entry.sequence_num !== undefined) ? `#${entry.sequence_num}` : "-";
         const safeTitle = displayLogText.replace(/"/g, '&quot;');
 
         rowsHtml += `
@@ -1015,6 +1290,7 @@ async function clearAesKey() {
                 ${statusLabel}
               </span>
             </td>
+            <td class="p-2 font-bold text-sky-300 whitespace-nowrap">${seqDisplay}</td>
             <td class="p-2 text-slate-300">
               <div>${entry.timestamp}</div>
               <div class="flex items-center gap-1 mt-0.5">
@@ -1035,12 +1311,16 @@ async function clearAesKey() {
         document.getElementById("batchValidCount").innerText = valid;
         document.getElementById("batchTamperedCount").innerText = tampered;
 
-        if (i % 3 === 0) {
-          await new Promise(r => setTimeout(r, 50));
+        if (i % 4 === 0) {
+          await new Promise(r => setTimeout(r, 30));
         }
       }
 
       tbody.innerHTML = rowsHtml;
+
+      // Valuta la continuità della catena dei batch caricati (rilevando eventuali salti es. 5, 6, 7, 9 -> manca #8)
+      evaluateBatchHashChain(batchesMap, rootCache, computedBatchRoots);
+
       const fileInput = document.getElementById("batchFileInput");
       if (fileInput) fileInput.value = "";
     }
