@@ -20,6 +20,7 @@ WTMP_PATH = "/var/log/wtmp"  # Login riusciti
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ARCHIVES_BASE_DIR = os.path.join(BASE_DIR, "archives")
+CHAIN_STATE_PATH = os.path.join(BASE_DIR, ".chain_state.json")
 ENV_PATH = os.path.join(BASE_DIR, ".env")
 
 TPM_NVRAM_KEY_INDEX = "0x1500018"
@@ -29,7 +30,6 @@ TPM2TOOLS_TCTI = "swtpm:port=2321"
 BATCH_SIZE = 2
 HEARTBEAT_TIMEOUT = 60
 
-# RICORDA: Inserisci qui l'indirizzo del tuo wallet Host registrato sulla DApp
 EXPECTED_ADDRESS = Web3.to_checksum_address("0x0125Bd28Df8adC95A360A6317B8d175813EA008D")
 
 # Caricamento eventuali override da .env (senza chiavi in chiaro)
@@ -115,14 +115,44 @@ CONTRACT_ABI = [
 ]
 contract = w3.eth.contract(address=Web3.to_checksum_address(CONTRACT_ADDRESS), abi=CONTRACT_ABI)
 
+# ================= GESTIONE STATO HASH CHAIN DEI BATCH =================
+GENESIS_HASH = "0x" + ("0" * 64)
+
+def load_chain_state() -> dict:
+    if os.path.exists(CHAIN_STATE_PATH):
+        try:
+            with open(CHAIN_STATE_PATH, "r") as f:
+                data = json.load(f)
+                return {
+                    "last_seq": int(data.get("last_seq", 0)),
+                    "last_batch_hash": str(data.get("last_batch_hash", GENESIS_HASH))
+                }
+        except Exception as e:
+            print(f"[!] Errore lettura stato catena ({e}), riparto da Genesi.")
+    return {"last_seq": 0, "last_batch_hash": GENESIS_HASH}
+
+def save_chain_state(seq_num: int, batch_hash: str):
+    tmp_path = CHAIN_STATE_PATH + ".tmp"
+    with open(tmp_path, "w") as f:
+        json.dump({
+            "last_seq": seq_num,
+            "last_batch_hash": batch_hash,
+            "updated_at": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        }, f, indent=2)
+    os.replace(tmp_path, CHAIN_STATE_PATH)
+
+def compute_batch_chain_hash(merkle_root_hex: str, prev_batch_hash_hex: str, batch_id: str, seq_num: int) -> str:
+    """
+    Calcola l'impronta di concatenazione del batch:
+    keccak256(f"{merkle_root_lower}|{prev_batch_hash_lower}|{batch_id}|{seq_num}")
+    """
+    payload = f"{merkle_root_hex.lower()}|{prev_batch_hash_hex.lower()}|{batch_id}|{seq_num}"
+    return "0x" + keccak(text=payload).hex()
+
 # ================= PARSER BINARIO UTMP (BTMP + WTMP) =================
-# Struct utmp Linux x86_64 (384 bytes):
-# [0] ut_type (h), [1] ut_pid (i), [2] ut_line (32s), [3] ut_id (4s),
-# [4] ut_user (32s), [5] ut_host (256s), [6] e_termination (h), [7] e_exit (h),
-# [8] ut_session (i), [9] ut_tv.tv_sec (i), [10] ut_tv.tv_usec (i), [11..14] ut_addr_v6 (4i), [15] reserved (20s)
 UTMP_STRUCT_FORMAT = "hi32s4s32s256shhiii4i20s"
 RECORD_SIZE = struct.calcsize(UTMP_STRUCT_FORMAT)  # 384 bytes
-USER_PROCESS = 7  # Sessione utente autenticata in <utmp.h>
+USER_PROCESS = 7
 
 def parse_utmp_record(raw_bytes: bytes, event_label: str, only_user_process: bool = False):
     if len(raw_bytes) < RECORD_SIZE:
@@ -134,12 +164,10 @@ def parse_utmp_record(raw_bytes: bytes, event_label: str, only_user_process: boo
     ut_user = fields[4].split(b'\0', 1)[0].decode('latin1', errors='replace').strip()
     ut_host = fields[5].split(b'\0', 1)[0].decode('latin1', errors='replace').strip()
 
-    # Estrazione corretta di tv_sec (indice 9 su x86_64) con fallback su indice 8 o time.time()
     ut_tv_sec = fields[9] if fields[9] > 1000000000 else fields[8]
     if ut_tv_sec <= 1000000000 or ut_tv_sec > 4102444800:
         ut_tv_sec = int(time.time())
 
-    # Per wtmp filtriamo solo i veri login utente (ignorando reboot, dead_process, runlevel)
     if only_user_process and ut_type != USER_PROCESS:
         return None
 
@@ -172,13 +200,11 @@ class UtmpStreamReader:
     def read_next(self):
         try:
             st = os.stat(self.path)
-            # Gestione logrotate (cambio inode)
             if st.st_ino != self.inode:
                 print(f"[*] Rilevata rotazione log su {self.path}. Riapertura file...")
                 self.file.close()
                 self.file = open(self.path, "rb")
                 self.inode = st.st_ino
-            # Gestione copytruncate (file rimpicciolito)
             elif st.st_size < self.file.tell():
                 print(f"[*] Rilevato troncamento su {self.path}. Reset offset...")
                 self.file.seek(0, os.SEEK_SET)
@@ -190,7 +216,6 @@ class UtmpStreamReader:
         if not chunk:
             return None
         if len(chunk) < RECORD_SIZE:
-            # Scrittura parziale in corso da parte di PAM/sshd: attendi il prossimo ciclo
             self.file.seek(pos, os.SEEK_SET)
             return None
 
@@ -239,10 +264,14 @@ def encrypt_log(raw_text: str) -> dict:
         "tag": encrypted_data[-16:].hex()
     }
 
-# ================= ANCORAGGIO ON-CHAIN E SALVATAGGIO GERARCHICO =================
+# ================= ANCORAGGIO ON-CHAIN E SALVATAGGIO CONCATENATO =================
 def anchor_batch(batch_records: list):
     if not batch_records:
         return
+
+    chain_state = load_chain_state()
+    seq_num = chain_state["last_seq"] + 1
+    prev_batch_hash = chain_state["last_batch_hash"]
 
     batch_id = str(uuid.uuid4())
     leaves = [hash_leaf(r["raw_log"]) for r in batch_records]
@@ -250,7 +279,10 @@ def anchor_batch(batch_records: list):
     root_bytes = tree[-1][0]
     root_hex = "0x" + root_bytes.hex()
 
-    print(f"\n[ANCHOR] Invio Batch {batch_id} ({len(batch_records)} eventi) | Root: {root_hex}")
+    batch_hash = compute_batch_chain_hash(root_hex, prev_batch_hash, batch_id, seq_num)
+
+    print(f"\n[ANCHOR] Seq #{seq_num} | Batch {batch_id} ({len(batch_records)} eventi)")
+    print(f"         Root: {root_hex} | PrevHash: {prev_batch_hash[:14]}... -> BatchHash: {batch_hash[:14]}...")
 
     nonce = w3.eth.get_transaction_count(EXPECTED_ADDRESS, "pending")
     fee_data = w3.eth.fee_history(1, "latest")
@@ -275,7 +307,6 @@ def anchor_batch(batch_records: list):
     except Exception:
         tx["gas"] = 350000
 
-    # Ricostruzione effimera della chiave privata: vive solo in questo blocco
     ephemeral_key = get_ephemeral_signing_key()
     try:
         signed_tx = w3.eth.account.sign_transaction(tx, ephemeral_key)
@@ -289,10 +320,13 @@ def anchor_batch(batch_records: list):
 
     archive_entries = []
     for idx, r in enumerate(batch_records):
-        # Formattazione con orario locale leggibile dall'epoch reale dell'evento
         readable_ts = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(r["epoch"]))
         archive_entries.append({
             "id": str(uuid.uuid4()),
+            "sequence_num": seq_num,
+            "prev_batch_hash": prev_batch_hash,
+            "batch_hash": batch_hash,
+            "merkle_root": root_hex,
             "timestamp": readable_ts,
             "encrypted": encrypt_log(r["raw_log"]),
             "leaf": "0x" + leaves[idx].hex(),
@@ -301,7 +335,17 @@ def anchor_batch(batch_records: list):
             "tx_hash": tx_hash.hex()
         })
 
-    # Creazione struttura gerarchica: archives / YYYY-MM / YYYY-MM-DD / batch_<batch_id>.json
+    batch_envelope = {
+        "sequence_num": seq_num,
+        "batch_id": batch_id,
+        "prev_batch_hash": prev_batch_hash,
+        "merkle_root": root_hex,
+        "batch_hash": batch_hash,
+        "tx_hash": tx_hash.hex(),
+        "created_at": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
+        "logs": archive_entries
+    }
+
     now_local = time.localtime()
     month_folder = time.strftime("%Y-%m", now_local)
     day_folder = time.strftime("%Y-%m-%d", now_local)
@@ -309,33 +353,33 @@ def anchor_batch(batch_records: list):
     target_dir = os.path.join(ARCHIVES_BASE_DIR, month_folder, day_folder)
     os.makedirs(target_dir, exist_ok=True)
 
-    batch_filename = f"batch_{batch_id}.json"
+    batch_filename = f"seq_{seq_num:05d}_batch_{batch_id}.json"
     batch_file_path = os.path.join(target_dir, batch_filename)
 
     with open(batch_file_path, "w") as f:
-        json.dump(archive_entries, f, indent=2)
+        json.dump(batch_envelope, f, indent=2)
 
-    print(f"[ARCHIVE] {len(archive_entries)} record cifrati salvati in: {batch_file_path}\n")
+    save_chain_state(seq_num, batch_hash)
+    print(f"[ARCHIVE] Batch #{seq_num} salvato in: {batch_file_path}\n")
 
 # ================= LOOP PRINCIPALE =================
 if __name__ == "__main__":
     btmp_reader = UtmpStreamReader(BTMP_PATH, "FAILED_LOGIN", only_user_process=False)
     wtmp_reader = UtmpStreamReader(WTMP_PATH, "SUCCESS_LOGIN", only_user_process=True)
 
-    print(f"[*] Monitoraggio attivo su {BTMP_PATH} (Falliti) e {WTMP_PATH} (Riusciti)...")
-    print(f"[*] Directory archivi strutturati: {ARCHIVES_BASE_DIR}/<YYYY-MM>/<YYYY-MM-DD>/batch_<id>.json")
+    state = load_chain_state()
+    print(f"[*] Monitoraggio attivo su {BTMP_PATH} e {WTMP_PATH}...")
+    print(f"[*] Stato Hash Chain: Ultimo Seq #{state['last_seq']} | Last Hash: {state['last_batch_hash'][:18]}...")
 
     buffer = []
     last_flush = time.time()
 
     while True:
-        # Controlla login falliti (btmp)
         rec_fail = btmp_reader.read_next()
         if rec_fail:
             buffer.append(rec_fail)
             print(f"[INGEST - FAIL] ({len(buffer)}/{BATCH_SIZE}) {rec_fail['raw_log']}")
 
-        # Controlla login riusciti (wtmp)
         rec_succ = wtmp_reader.read_next()
         if rec_succ:
             buffer.append(rec_succ)
