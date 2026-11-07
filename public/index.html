@@ -160,7 +160,7 @@
 
       <!-- BATCH FORENSIC VERIFIER (MULTI-FILE DRAG & DROP + AES-GCM + HASH CHAIN GAP DETECTOR) -->
       <div class="bg-slate-800 p-6 rounded-xl border border-emerald-500/40 space-y-5 shadow-lg">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
             <h2 class="text-md font-bold text-emerald-400 flex items-center gap-2">
               <span>🌳</span> Merkle Forensic Verifier, AES-GCM Decryptor &amp; Hash Chain Auditor
@@ -169,14 +169,20 @@
               Trascina <b>uno o più file batch JSON</b> (anche non consecutivi, es. #5, #6, #7, #9). Il sistema decifrerà i log in RAM, verificherà ogni Merkle Root su Arbitrum Sepolia e analizzerà la continuità della <b>Batch Hash Chain</b> segnalando eventuali batch mancanti o omessi.
             </p>
           </div>
-          <button 
-            id="clearLoadedBatchesBtn"
-            type="button"
-            onclick="clearLoadedBatches()"
-            class="hidden bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold transition whitespace-nowrap"
-          >
-            🧹 Svuota Batch Caricati
-          </button>
+          <div class="flex items-center gap-2 self-end sm:self-center">
+            <span id="loadedBatchesCounterBadge" class="hidden text-[11px] font-mono bg-slate-900 border border-slate-700 text-sky-300 px-2.5 py-1.5 rounded-lg">
+              0 batch in memoria
+            </span>
+            <button 
+              id="clearLoadedBatchesBtn"
+              type="button"
+              onclick="clearLoadedBatches()"
+              class="bg-rose-900/80 hover:bg-rose-800 border border-rose-700 text-rose-100 px-3.5 py-2 rounded-lg text-xs font-bold transition whitespace-nowrap flex items-center gap-1.5 shadow"
+              title="Rimuove tutti i batch e i log caricati finora per iniziare un nuovo controllo da zero"
+            >
+              🧹 Pulisci Batch Caricati
+            </button>
+          </div>
         </div>
 
         <!-- Chiave di Decifratura AES-256-GCM -->
@@ -228,7 +234,7 @@
               Trascina qui uno o più file <code class="text-emerald-300">seq_XXXXX_batch_*.json</code> o <span class="text-emerald-400 underline">selezionali</span>
             </div>
             <div class="text-xs text-slate-500">
-              Puoi selezionare contemporaneamente più file batch (anche non consecutivi) per verificare sia le Merkle Proof L2 sia l'integrità della Hash Chain
+              Puoi selezionare contemporaneamente più file batch (anche non consecutivi) oppure aggiungerli in più passaggi. Usa <b>"🧹 Pulisci Batch Caricati"</b> per ricominciare da capo.
             </div>
           </div>
         </div>
@@ -429,14 +435,29 @@
       }
     }
 
+    // --- RESET / PULIZIA COMPLETA DEI BATCH CARICATI ---
     function clearLoadedBatches() {
       lastLoadedEntries = [];
       lastLoadedBatchesMap = {};
+      
+      const fileInput = document.getElementById("batchFileInput");
+      if (fileInput) fileInput.value = "";
+
       document.getElementById("batchSummaryBar").classList.add("hidden");
       document.getElementById("chainAuditPanel").classList.add("hidden");
       document.getElementById("batchResultsContainer").classList.add("hidden");
       document.getElementById("reverifyBtn").classList.add("hidden");
-      document.getElementById("clearLoadedBatchesBtn").classList.add("hidden");
+      
+      const counterBadge = document.getElementById("loadedBatchesCounterBadge");
+      if (counterBadge) {
+        counterBadge.classList.add("hidden");
+        counterBadge.innerText = "0 batch in memoria";
+      }
+
+      document.getElementById("batchTotalCount").innerText = "0";
+      document.getElementById("batchValidCount").innerText = "0";
+      document.getElementById("batchTamperedCount").innerText = "0";
+      document.getElementById("batchChainStatusText").innerText = "--";
       document.getElementById("batchTableBody").innerHTML = "";
       document.getElementById("chainTimelineContainer").innerHTML = "";
     }
@@ -998,9 +1019,7 @@
         const filesArray = Array.from(fileList);
         const readResults = await Promise.all(filesArray.map(f => readFileAsText(f)));
 
-        // Cumula con eventuali batch già caricati nella sessione (evitando duplicati sullo stesso log id)
         const existingLogIds = new Set(lastLoadedEntries.map(e => `${e.batch_id}_${e.id}`));
-        let addedCount = 0;
 
         for (const res of readResults) {
           const parsed = parseBatchContent(res.content, res.name);
@@ -1012,7 +1031,6 @@
             if (!existingLogIds.has(uniqueKey)) {
               existingLogIds.add(uniqueKey);
               lastLoadedEntries.push(entry);
-              addedCount++;
             }
             if (entry.batch_id && !lastLoadedBatchesMap[entry.batch_id]) {
               lastLoadedBatchesMap[entry.batch_id] = {
@@ -1039,8 +1057,14 @@
           return seqA - seqB;
         });
 
+        const totalBatchesLoaded = Object.keys(lastLoadedBatchesMap).length;
+        const counterBadge = document.getElementById("loadedBatchesCounterBadge");
+        if (counterBadge) {
+          counterBadge.classList.remove("hidden");
+          counterBadge.innerText = `${totalBatchesLoaded} batch in memoria`;
+        }
+
         document.getElementById("reverifyBtn").classList.remove("hidden");
-        document.getElementById("clearLoadedBatchesBtn").classList.remove("hidden");
         await verifyMerkleBatch(lastLoadedEntries, lastLoadedBatchesMap);
 
       } catch (err) {
@@ -1067,8 +1091,6 @@
         .filter(b => b.sequence_num !== null && b.sequence_num !== undefined && !isNaN(b.sequence_num))
         .sort((a, b) => a.sequence_num - b.sequence_num);
 
-      const legacyBatches = batchList.filter(b => b.sequence_num === null || b.sequence_num === undefined || isNaN(b.sequence_num));
-
       if (sequencedBatches.length === 0) {
         summaryBadge.className = "text-[11px] font-mono px-2.5 py-0.5 rounded font-semibold bg-slate-800 text-slate-300";
         summaryBadge.innerText = "FORMATO LEGACY (Senza Sequence #)";
@@ -1080,7 +1102,7 @@
 
       let html = "";
       let gapsCount = 0;
-      letmissingTotal = 0;
+      let missingTotal = 0;
       let brokenLinks = 0;
 
       for (let i = 0; i < sequencedBatches.length; i++) {
@@ -1106,7 +1128,6 @@
           const delta = seq - prev.sequence_num;
 
           if (delta === 1) {
-            // Batch consecutivi: verifichiamo il link crittografico prev_batch_hash == prev.batch_hash
             const linkMatch = (curr.prev_batch_hash && prev.batch_hash && curr.prev_batch_hash.toLowerCase() === prev.batch_hash.toLowerCase());
             if (!linkMatch) {
               brokenLinks++;
@@ -1123,7 +1144,6 @@
               `;
             }
           } else if (delta > 1) {
-            // Rilevato GAP (es. caricato 5, 6, 7 e poi 9 -> manca #8)
             gapsCount++;
             const missingNums = [];
             for (let m = prev.sequence_num + 1; m < seq; m++) {
@@ -1146,7 +1166,6 @@
             `;
           }
         } else if (seq > 1) {
-          // L'auditor ha iniziato a caricare da un batch > 1 (es. parte da #5)
           html += `
             <div class="p-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-400 flex items-center justify-between">
               <span>ℹ️ Finestra di audit parziale: caricamento iniziato dal <b>Batch #${seq}</b> (Batch #1..#${seq - 1} non inclusi nella selezione).</span>
@@ -1155,7 +1174,6 @@
           `;
         }
 
-        // Riga stato del singolo Batch nella catena
         const onChainRoot = onChainRootCache[curr.batch_id];
         const isAnchored = (onChainRoot && onChainRoot !== ethers.ZeroHash);
         let linkStatusText = (seq === 1) ? "GENESIS (#1)" : "LINKED";
@@ -1318,7 +1336,6 @@
 
       tbody.innerHTML = rowsHtml;
 
-      // Valuta la continuità della catena dei batch caricati (rilevando eventuali salti es. 5, 6, 7, 9 -> manca #8)
       evaluateBatchHashChain(batchesMap, rootCache, computedBatchRoots);
 
       const fileInput = document.getElementById("batchFileInput");
