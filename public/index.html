@@ -181,12 +181,12 @@
               Mostra/Nascondi
             </button>
           </div>
-          <div class="flex gap-2">
+          <div class="flex flex-wrap gap-2">
             <input 
               id="auditorAesKey" 
               type="password" 
               placeholder="Incolla qui la chiave esadecimale a 64 caratteri (32 byte)..." 
-              class="flex-1 bg-slate-950 border border-slate-700 p-2.5 rounded-lg text-xs text-amber-300 font-mono focus:outline-none focus:border-emerald-500"
+              class="flex-1 min-w-[240px] bg-slate-950 border border-slate-700 p-2.5 rounded-lg text-xs text-amber-300 font-mono focus:outline-none focus:border-emerald-500"
             />
             <button 
               id="reverifyBtn"
@@ -195,6 +195,16 @@
               class="hidden bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-2 rounded-lg text-xs font-semibold transition whitespace-nowrap"
             >
               🔓 Decifra e Riverifica
+            </button>
+            <!-- NUOVO TASTO CANCELLAZIONE CHIAVE -->
+            <button 
+              id="clearAesKeyBtn"
+              type="button" 
+              onclick="clearAesKey()" 
+              class="bg-rose-900/70 hover:bg-rose-800 border border-rose-700/60 text-rose-200 px-3 py-2 rounded-lg text-xs font-semibold transition whitespace-nowrap flex items-center gap-1.5"
+              title="Azzera la chiave dalla memoria del browser e blocca la visualizzazione dei log"
+            >
+              🗑️ Dimentica Chiave
             </button>
           </div>
           <p class="text-[11px] text-slate-500">
@@ -350,6 +360,26 @@
         }, 1500);
       }
     }
+
+    // Azzera il campo input e riverifica i log mascherandoli nuovamente
+async function clearAesKey() {
+  const input = document.getElementById("auditorAesKey");
+  if (input) {
+    input.value = "";
+  }
+  
+  // Cancella anche l'input di generazione dell'admin se valorizzato
+  const genInput = document.getElementById("generatedAesKey");
+  if (genInput) {
+    genInput.value = "";
+  }
+
+  // Se c'è già un file batch caricato, rilancia la verifica:
+  // senza la chiave, i log torneranno istantaneamente cifrati / bloccati!
+  if (typeof lastLoadedEntries !== "undefined" && lastLoadedEntries && lastLoadedEntries.length > 0) {
+    await reverifyLastLoadedEntries();
+  }
+}
 
     // --- GENERATORE CHIAVE AES E SNIPPET TPM (ADMIN ONBOARDING) ---
     function generateHostAesKey() {
