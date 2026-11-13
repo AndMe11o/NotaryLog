@@ -30,7 +30,27 @@ TPM2TOOLS_TCTI = "swtpm:port=2321"
 BATCH_SIZE = 2
 HEARTBEAT_TIMEOUT = 60
 
-EXPECTED_ADDRESS = Web3.to_checksum_address("0x0125Bd28Df8adC95A360A6317B8d175813EA008D")
+
+EXPECTED_ADDRESS = None
+
+if os.path.exists(ENV_PATH):
+    with open(ENV_PATH, "r") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            k, v = [x.strip().strip('"').strip("'") for x in line.split("=", 1)]
+            if k == "RPC_URL":
+                RPC_URL = v
+            elif k == "CONTRACT_ADDRESS":
+                CONTRACT_ADDRESS = v
+            elif k == "EXPECTED_ADDRESS":
+                EXPECTED_ADDRESS = Web3.to_checksum_address(v)
+            # ... resto delle variabili ...
+
+if not EXPECTED_ADDRESS:
+    raise SystemExit("[FATAL] EXPECTED_ADDRESS non configurato nel file .env. Arresto esecuzione.")
+
 
 # Caricamento eventuali override da .env (senza chiavi in chiaro)
 if os.path.exists(ENV_PATH):
