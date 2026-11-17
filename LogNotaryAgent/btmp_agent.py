@@ -21,6 +21,7 @@ WTMP_PATH = "/var/log/wtmp"  # Login riusciti
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ARCHIVES_BASE_DIR = os.path.join(BASE_DIR, "archives")
 CHAIN_STATE_PATH = os.path.join(BASE_DIR, ".chain_state.json")
+CURSOR_STATE_PATH = os.path.join(BASE_DIR, ".cursor_state.json")
 ENV_PATH = os.path.join(BASE_DIR, ".env")
 
 TPM_NVRAM_KEY_INDEX = "0x1500018"
@@ -29,10 +30,9 @@ TPM2TOOLS_TCTI = "swtpm:port=2321"
 
 BATCH_SIZE = 2
 HEARTBEAT_TIMEOUT = 60
-
-
 EXPECTED_ADDRESS = None
 
+# Caricamento override da .env (senza chiavi in chiaro)
 if os.path.exists(ENV_PATH):
     with open(ENV_PATH, "r") as f:
         for line in f:
@@ -46,24 +46,6 @@ if os.path.exists(ENV_PATH):
                 CONTRACT_ADDRESS = v
             elif k == "EXPECTED_ADDRESS":
                 EXPECTED_ADDRESS = Web3.to_checksum_address(v)
-            # ... resto delle variabili ...
-
-if not EXPECTED_ADDRESS:
-    raise SystemExit("[FATAL] EXPECTED_ADDRESS non configurato nel file .env. Arresto esecuzione.")
-
-
-# Caricamento eventuali override da .env (senza chiavi in chiaro)
-if os.path.exists(ENV_PATH):
-    with open(ENV_PATH, "r") as f:
-        for line in f:
-            line = line.strip()
-            if not line or line.startswith("#") or "=" not in line:
-                continue
-            k, v = [x.strip().strip('"').strip("'") for x in line.split("=", 1)]
-            if k == "RPC_URL":
-                RPC_URL = v
-            elif k == "CONTRACT_ADDRESS":
-                CONTRACT_ADDRESS = v
             elif k == "TPM_NVRAM_INDEX":
                 TPM_NVRAM_KEY_INDEX = v
             elif k == "TPM_NVRAM_AES_INDEX":
@@ -74,6 +56,9 @@ if os.path.exists(ENV_PATH):
                 BATCH_SIZE = int(v)
             elif k == "BATCH_TIMEOUT_SECONDS":
                 HEARTBEAT_TIMEOUT = int(v)
+
+if not EXPECTED_ADDRESS:
+    raise SystemExit("[FATAL] EXPECTED_ADDRESS non configurato nel file .env. Arresto esecuzione.")
 
 # ================= LETTURA HARDWARE TPM NVRAM =================
 def read_tpm_nvram_bytes(index: str, tcti: str) -> bytes:
@@ -134,6 +119,30 @@ CONTRACT_ABI = [
     }
 ]
 contract = w3.eth.contract(address=Web3.to_checksum_address(CONTRACT_ADDRESS), abi=CONTRACT_ABI)
+
+# ================= GESTIONE PERSISTENZA CURSORE LOG =================
+def load_cursor_state() -> dict:
+    if os.path.exists(CURSOR_STATE_PATH):
+        try:
+            with open(CURSOR_STATE_PATH, "r") as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"[!] Errore lettura stato cursore ({e}), riparto dalla coda dei log.")
+    return {}
+
+def save_cursor_state(readers: list):
+    state = {}
+    for r in readers:
+        state[r.path] = {
+            "inode": r.inode,
+            "offset": r.committed_offset
+        }
+    state["updated_at"] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+
+    tmp_path = CURSOR_STATE_PATH + ".tmp"
+    with open(tmp_path, "w") as f:
+        json.dump(state, f, indent=2)
+    os.replace(tmp_path, CURSOR_STATE_PATH)
 
 # ================= GESTIONE STATO HASH CHAIN DEI BATCH =================
 GENESIS_HASH = "0x" + ("0" * 64)
@@ -202,20 +211,42 @@ def parse_utmp_record(raw_bytes: bytes, event_label: str, only_user_process: boo
 
 # ================= GESTIONE RESILIENTE DEI FILE LOG =================
 class UtmpStreamReader:
-    def __init__(self, path: str, label: str, only_user_process: bool):
+    def __init__(self, path: str, label: str, only_user_process: bool, saved_state: dict = None):
         self.path = path
         self.label = label
         self.only_user_process = only_user_process
         self.file = None
         self.inode = None
-        self._open_end()
+        self.committed_offset = 0
+        self._open_with_state(saved_state)
 
-    def _open_end(self):
+    def _open_with_state(self, saved_state: dict):
         if not os.path.exists(self.path):
             open(self.path, "ab").close()
         self.file = open(self.path, "rb")
+        st = os.fstat(self.file.fileno())
+        self.inode = st.st_ino
+
+        if saved_state and "inode" in saved_state and "offset" in saved_state:
+            saved_inode = int(saved_state["inode"])
+            saved_offset = int(saved_state["offset"])
+
+            if saved_inode == self.inode and 0 <= saved_offset <= st.st_size and (saved_offset % RECORD_SIZE == 0):
+                self.file.seek(saved_offset, os.SEEK_SET)
+                self.committed_offset = saved_offset
+                print(f"[*] Cursore ripristinato su {self.path} -> Inode: {self.inode} | Offset: {saved_offset} byte")
+                return
+            elif saved_inode != self.inode:
+                # Rotazione log avvenuta mentre l'agente era fermo: leggiamo dall'inizio del nuovo file
+                self.file.seek(0, os.SEEK_SET)
+                self.committed_offset = 0
+                print(f"[*] Nuovo inode rilevato su {self.path} dopo downtime -> Riparto da offset 0")
+                return
+
+        # Prima esecuzione o stato invalido: posiziona alla fine del file
         self.file.seek(0, os.SEEK_END)
-        self.inode = os.fstat(self.file.fileno()).st_ino
+        self.committed_offset = self.file.tell()
+        print(f"[*] Nessun cursore precedente valido per {self.path} -> Posizionato alla fine ({self.committed_offset} byte)")
 
     def read_next(self):
         try:
@@ -225,9 +256,11 @@ class UtmpStreamReader:
                 self.file.close()
                 self.file = open(self.path, "rb")
                 self.inode = st.st_ino
+                self.committed_offset = 0
             elif st.st_size < self.file.tell():
                 print(f"[*] Rilevato troncamento su {self.path}. Reset offset...")
                 self.file.seek(0, os.SEEK_SET)
+                self.committed_offset = 0
         except FileNotFoundError:
             return None
 
@@ -239,7 +272,16 @@ class UtmpStreamReader:
             self.file.seek(pos, os.SEEK_SET)
             return None
 
-        return parse_utmp_record(chunk, self.label, self.only_user_process)
+        new_pos = self.file.tell()
+        parsed = parse_utmp_record(chunk, self.label, self.only_user_process)
+        if parsed:
+            parsed["source_reader"] = self
+            parsed["end_offset"] = new_pos
+            return parsed
+        else:
+            # Record scartato dal filtro (es. non USER_PROCESS su wtmp): avanziamo l'offset sicuro
+            self.committed_offset = new_pos
+            return None
 
 # ================= MOTORE MERKLE =================
 def hash_leaf(log_str: str) -> bytes:
@@ -285,7 +327,7 @@ def encrypt_log(raw_text: str) -> dict:
     }
 
 # ================= ANCORAGGIO ON-CHAIN E SALVATAGGIO CONCATENATO =================
-def anchor_batch(batch_records: list):
+def anchor_batch(batch_records: list, all_readers: list):
     if not batch_records:
         return
 
@@ -379,13 +421,26 @@ def anchor_batch(batch_records: list):
     with open(batch_file_path, "w") as f:
         json.dump(batch_envelope, f, indent=2)
 
+    # Aggiorna offset committati dei reader coinvolti nel batch
+    for r in batch_records:
+        reader = r["source_reader"]
+        if r["end_offset"] > reader.committed_offset:
+            reader.committed_offset = r["end_offset"]
+
     save_chain_state(seq_num, batch_hash)
-    print(f"[ARCHIVE] Batch #{seq_num} salvato in: {batch_file_path}\n")
+    save_cursor_state(all_readers)
+    print(f"[ARCHIVE] Batch #{seq_num} salvato in: {batch_file_path} (cursore persistito)\n")
 
 # ================= LOOP PRINCIPALE =================
 if __name__ == "__main__":
-    btmp_reader = UtmpStreamReader(BTMP_PATH, "FAILED_LOGIN", only_user_process=False)
-    wtmp_reader = UtmpStreamReader(WTMP_PATH, "SUCCESS_LOGIN", only_user_process=True)
+    cursor_states = load_cursor_state()
+    btmp_reader = UtmpStreamReader(BTMP_PATH, "FAILED_LOGIN", only_user_process=False, saved_state=cursor_states.get(BTMP_PATH))
+    wtmp_reader = UtmpStreamReader(WTMP_PATH, "SUCCESS_LOGIN", only_user_process=True, saved_state=cursor_states.get(WTMP_PATH))
+    all_readers = [btmp_reader, wtmp_reader]
+
+    # Salva lo stato iniziale se non esiste ancora
+    if not os.path.exists(CURSOR_STATE_PATH):
+        save_cursor_state(all_readers)
 
     state = load_chain_state()
     print(f"[*] Monitoraggio attivo su {BTMP_PATH} e {WTMP_PATH}...")
@@ -407,7 +462,7 @@ if __name__ == "__main__":
 
         now = time.time()
         if len(buffer) >= BATCH_SIZE or (buffer and (now - last_flush) >= HEARTBEAT_TIMEOUT):
-            anchor_batch(buffer)
+            anchor_batch(buffer, all_readers)
             buffer = []
             last_flush = time.time()
 
