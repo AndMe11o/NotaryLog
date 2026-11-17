@@ -1,4 +1,5 @@
 import os
+import math
 import time
 import json
 import uuid
@@ -28,7 +29,9 @@ TPM_NVRAM_KEY_INDEX = "0x1500018"
 TPM_NVRAM_AES_INDEX = "0x1500019"
 TPM2TOOLS_TCTI = "swtpm:port=2321"
 
-BATCH_SIZE = 2
+BATCH_MIN_SIZE = 4
+BATCH_MAX_SIZE = 128
+BATCH_TARGET_WINDOW = 15.0
 HEARTBEAT_TIMEOUT = 60
 EXPECTED_ADDRESS = None
 
@@ -52,8 +55,12 @@ if os.path.exists(ENV_PATH):
                 TPM_NVRAM_AES_INDEX = v
             elif k == "TPM2TOOLS_TCTI":
                 TPM2TOOLS_TCTI = v
-            elif k == "BATCH_SIZE":
-                BATCH_SIZE = int(v)
+            elif k == "BATCH_MIN_SIZE":
+                BATCH_MIN_SIZE = int(v)
+            elif k == "BATCH_MAX_SIZE":
+                BATCH_MAX_SIZE = int(v)
+            elif k == "BATCH_TARGET_WINDOW":
+                BATCH_TARGET_WINDOW = float(v)
             elif k == "BATCH_TIMEOUT_SECONDS":
                 HEARTBEAT_TIMEOUT = int(v)
 
@@ -283,7 +290,16 @@ class UtmpStreamReader:
             self.committed_offset = new_pos
             return None
 
-# ================= MOTORE MERKLE =================
+# ================= MOTORE MERKLE & ADAPTIVE BATCHING =================
+def compute_dynamic_batch_size(buffer_len: int, first_event_ts: float, now: float) -> int:
+    # calcolo dinamico di invio log in base al traffico
+    if buffer_len <= 1 or first_event_ts is None:
+        return BATCH_MIN_SIZE
+    elapsed = max(now - first_event_ts, 0.05)
+    lambda_hat = (buffer_len - 1) / elapsed
+    raw_target = math.ceil(lambda_hat * BATCH_TARGET_WINDOW)
+    return max(BATCH_MIN_SIZE, min(BATCH_MAX_SIZE, raw_target))
+
 def hash_leaf(log_str: str) -> bytes:
     return keccak(text=log_str)
 
@@ -444,27 +460,37 @@ if __name__ == "__main__":
 
     state = load_chain_state()
     print(f"[*] Monitoraggio attivo su {BTMP_PATH} e {WTMP_PATH}...")
+    print(f"[*] Policy Adaptive Batching: N=[{BATCH_MIN_SIZE}..{BATCH_MAX_SIZE}], T_target={BATCH_TARGET_WINDOW}s, T_max={HEARTBEAT_TIMEOUT}s")
     print(f"[*] Stato Hash Chain: Ultimo Seq #{state['last_seq']} | Last Hash: {state['last_batch_hash'][:18]}...")
 
     buffer = []
-    last_flush = time.time()
+    first_event_ts = None
 
     while True:
+        now = time.time()
+
         rec_fail = btmp_reader.read_next()
         if rec_fail:
+            if not buffer:
+                first_event_ts = now
             buffer.append(rec_fail)
-            print(f"[INGEST - FAIL] ({len(buffer)}/{BATCH_SIZE}) {rec_fail['raw_log']}")
+            dyn_target = compute_dynamic_batch_size(len(buffer), first_event_ts, now)
+            print(f"[INGEST - FAIL] ({len(buffer)}/{dyn_target}) {rec_fail['raw_log']}")
 
         rec_succ = wtmp_reader.read_next()
         if rec_succ:
+            if not buffer:
+                first_event_ts = now
             buffer.append(rec_succ)
-            print(f"[INGEST - OK]   ({len(buffer)}/{BATCH_SIZE}) {rec_succ['raw_log']}")
+            dyn_target = compute_dynamic_batch_size(len(buffer), first_event_ts, now)
+            print(f"[INGEST - OK]   ({len(buffer)}/{dyn_target}) {rec_succ['raw_log']}")
 
-        now = time.time()
-        if len(buffer) >= BATCH_SIZE or (buffer and (now - last_flush) >= HEARTBEAT_TIMEOUT):
-            anchor_batch(buffer, all_readers)
-            buffer = []
-            last_flush = time.time()
+        if buffer:
+            current_target = compute_dynamic_batch_size(len(buffer), first_event_ts, now)
+            if len(buffer) >= current_target or (now - first_event_ts) >= HEARTBEAT_TIMEOUT:
+                anchor_batch(buffer, all_readers)
+                buffer = []
+                first_event_ts = None
 
         if not rec_fail and not rec_succ:
             time.sleep(0.5)
