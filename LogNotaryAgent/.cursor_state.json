@@ -1,0 +1,11 @@
+{
+  "/var/log/btmp": {
+    "inode": 855,
+    "offset": 7840512
+  },
+  "/var/log/wtmp": {
+    "inode": 84558,
+    "offset": 33408
+  },
+  "updated_at": "2026-11-17 10:26:34"
+}

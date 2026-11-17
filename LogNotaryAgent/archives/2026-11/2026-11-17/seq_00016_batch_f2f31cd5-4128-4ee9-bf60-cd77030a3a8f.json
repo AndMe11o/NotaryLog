@@ -1,0 +1,28 @@
+{
+  "sequence_num": 16,
+  "batch_id": "f2f31cd5-4128-4ee9-bf60-cd77030a3a8f",
+  "prev_batch_hash": "0x194a5302cc62a98f41980f861dd3f7658888ea8f491e1c784e8d82d00824268f",
+  "merkle_root": "0x351bd02d1dba0f907d06ccb67da84306113e779835b154057806175b533a27e9",
+  "batch_hash": "0x9cad28cbb60a635fb1ac44d45d42393a11b7079ea76d32677f877ec0f6fe84af",
+  "tx_hash": "0051b0df7c74372f3a0b9aa09b1531ef459a274e689adfda709d24bb5958057e",
+  "created_at": "2026-11-17 10:13:05",
+  "logs": [
+    {
+      "id": "65faa320-63a9-42c0-b630-382dbabbf801",
+      "sequence_num": 16,
+      "prev_batch_hash": "0x194a5302cc62a98f41980f861dd3f7658888ea8f491e1c784e8d82d00824268f",
+      "batch_hash": "0x9cad28cbb60a635fb1ac44d45d42393a11b7079ea76d32677f877ec0f6fe84af",
+      "merkle_root": "0x351bd02d1dba0f907d06ccb67da84306113e779835b154057806175b533a27e9",
+      "timestamp": "2026-11-17 10:13:02",
+      "encrypted": {
+        "ciphertext": "dce1eb8b045d4aba5fb478a764b98eb86a536ea31c95f18f00c932c18b781e839b7d5cd98060fe0a3319d368b992d1a9bef9f0343407ccee3d2c6e8cd94849bf1a9c6b1bd0443c961111d61625fb7873ad7a8cb65a544f655103",
+        "nonce": "a02957e32a880bd02b7b3335",
+        "tag": "e660d0de12c70835ee9f943ed3a97a2b"
+      },
+      "leaf": "0x351bd02d1dba0f907d06ccb67da84306113e779835b154057806175b533a27e9",
+      "batch_id": "f2f31cd5-4128-4ee9-bf60-cd77030a3a8f",
+      "proof": [],
+      "tx_hash": "0051b0df7c74372f3a0b9aa09b1531ef459a274e689adfda709d24bb5958057e"
+    }
+  ]
+}

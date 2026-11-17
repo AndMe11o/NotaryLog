@@ -1,0 +1,49 @@
+{
+  "sequence_num": 1,
+  "batch_id": "a7bdaeff-202d-4a0f-b425-f164302cc0f6",
+  "prev_batch_hash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+  "merkle_root": "0x7c97ccbd7d7588fadcdd4a20cef7110ff645393d13f239c02529d3cd82af7fa9",
+  "batch_hash": "0x830689248b996d88e54256a5f17c484e2a83276b91efe4e79cbc5317f1758c2b",
+  "tx_hash": "8b423122e85fdb5312fcd8fc3efdae75846c860e432d6ba65f5d474099555823",
+  "created_at": "2026-11-13 09:09:05",
+  "logs": [
+    {
+      "id": "d4a605ad-20e8-43ed-a4ca-b048a050d3af",
+      "sequence_num": 1,
+      "prev_batch_hash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "batch_hash": "0x830689248b996d88e54256a5f17c484e2a83276b91efe4e79cbc5317f1758c2b",
+      "merkle_root": "0x7c97ccbd7d7588fadcdd4a20cef7110ff645393d13f239c02529d3cd82af7fa9",
+      "timestamp": "2026-11-13 09:08:52",
+      "encrypted": {
+        "ciphertext": "07c5bb4338576c452a52554a65f0d1cfc344bcdab3cb7109e113cfd13f5dfeac34605cb8ffca818b752cb8929979cec5300abbbaabf40a0dea2e18e546cc06fea98f7acbc77d5b177269bad9a687ccc4b8a5caeb7c560d",
+        "nonce": "c15b85f75bd759ba1b6a92e5",
+        "tag": "45e40e77a2242765a94b32abfae8f0f3"
+      },
+      "leaf": "0x20718fa92e5eb4070e2613e124a2dd6ca5fc4f6360ca7eeb1d30d9a984238619",
+      "batch_id": "a7bdaeff-202d-4a0f-b425-f164302cc0f6",
+      "proof": [
+        "0x6a580536f88e20e0b5f1e0591ba51b23eece92b9804ab29b997fa24987e0ce12"
+      ],
+      "tx_hash": "8b423122e85fdb5312fcd8fc3efdae75846c860e432d6ba65f5d474099555823"
+    },
+    {
+      "id": "2eacd736-fc09-4b81-9baa-9100e2fb30dc",
+      "sequence_num": 1,
+      "prev_batch_hash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "batch_hash": "0x830689248b996d88e54256a5f17c484e2a83276b91efe4e79cbc5317f1758c2b",
+      "merkle_root": "0x7c97ccbd7d7588fadcdd4a20cef7110ff645393d13f239c02529d3cd82af7fa9",
+      "timestamp": "2026-11-13 09:09:01",
+      "encrypted": {
+        "ciphertext": "bcd8095906b637b9c3d113d2c75dd09170079cc79045fcbd2773955ed6dedd73cde9ffe78d6a6a18e08449a045d653c18717d331e6afe465746b02cc5c0fcd8d859b2362577ac6ef2ca506cdae681c6ea360a55998eb7c",
+        "nonce": "5083790e07b1d7ab4e1f39eb",
+        "tag": "753f2938a4e4730168ddd62ff97c3912"
+      },
+      "leaf": "0x6a580536f88e20e0b5f1e0591ba51b23eece92b9804ab29b997fa24987e0ce12",
+      "batch_id": "a7bdaeff-202d-4a0f-b425-f164302cc0f6",
+      "proof": [
+        "0x20718fa92e5eb4070e2613e124a2dd6ca5fc4f6360ca7eeb1d30d9a984238619"
+      ],
+      "tx_hash": "8b423122e85fdb5312fcd8fc3efdae75846c860e432d6ba65f5d474099555823"
+    }
+  ]
+}
