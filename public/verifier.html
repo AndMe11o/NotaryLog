@@ -21,7 +21,7 @@
             <span>🌳</span> Merkle Forensic Verifier &amp; Hash Chain Auditor
           </h2>
           <p class="text-xs text-slate-400 mt-1">
-            Verifica crittografica client-side dei batch JSON contro lo Smart Contract su Arbitrum Sepolia con riscontro diretto su Arbiscan.
+            Verifica l'integrità Merkle su Arbitrum Sepolia anche <b>senza chiave AES</b> (Blind Verification), oppure inserisci la chiave per decifrare i log in chiaro.
           </p>
         </div>
         <div class="flex items-center gap-2 self-end sm:self-center">
@@ -38,11 +38,11 @@
         </div>
       </div>
 
-      <!-- STEP 1: CHIAVE AES -->
+      <!-- STEP 1: CHIAVE AES (OPZIONALE PER INTEGRITA' L2, OBBLIGATORIA PER PLAINTEXT) -->
       <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-700 space-y-2.5">
         <div class="flex justify-between items-center">
           <label for="auditorAesKey" class="block text-xs font-bold text-amber-400 uppercase tracking-wider">
-            Step 1 &bull; Chiave di Decifratura Audit (AES-256-GCM Hex - 64 caratteri)
+            Step 1 &bull; Chiave di Decifratura Audit (Opzionale per verifica L2, richiesta per leggere il testo)
           </label>
           <button type="button" onclick="toggleAesKeyVisibility()" class="text-[11px] text-slate-400 hover:text-slate-200 underline">
             Mostra/Nascondi
@@ -53,7 +53,7 @@
             id="auditorAesKey"
             type="password"
             oninput="syncAesKeyToSession()"
-            placeholder="Incolla qui la chiave esadecimale a 64 caratteri (slot TPM 0x1500019)..."
+            placeholder="Incolla qui la chiave esadecimale a 64 caratteri (slot TPM 0x1500019) per decifrare..."
             class="flex-1 min-w-[240px] bg-slate-950 border border-slate-700 p-2.5 rounded-lg text-xs text-amber-300 font-mono focus:outline-none focus:border-emerald-500"
           />
           <button
@@ -73,7 +73,7 @@
           </button>
         </div>
         <p class="text-[11px] text-slate-500">
-          La decifratura avviene interamente nel browser tramite <code class="text-slate-400">window.crypto.subtle</code>. La chiave resta solo nella tua sessione locale.
+          Senza chiave viene eseguita una <b>Blind Merkle Verification</b> sulle foglie crittografiche; inserendo la chiave avviene la decifratura locale via <code class="text-slate-400">window.crypto.subtle</code>.
         </p>
       </div>
 
@@ -107,7 +107,7 @@
           <b id="batchValidCount" class="text-xl text-emerald-400">0</b>
         </div>
         <div class="bg-slate-900 border border-rose-800/60 p-3 rounded-lg text-center">
-          <span class="text-[11px] text-rose-400 uppercase tracking-wider block">Manomessi / Lock</span>
+          <span class="text-[11px] text-rose-400 uppercase tracking-wider block">Manomessi / Errori</span>
           <b id="batchTamperedCount" class="text-xl text-rose-400">0</b>
         </div>
         <div class="bg-slate-900 border border-amber-700/60 p-3 rounded-lg text-center">
@@ -127,7 +127,7 @@
         <div id="chainTimelineContainer" class="space-y-2 text-xs font-mono max-h-72 overflow-y-auto pr-1"></div>
       </div>
 
-      <!-- BARRA FILTRI & TABELLA LOG DECIFRATI -->
+      <!-- BARRA FILTRI & TABELLA LOG -->
       <div id="batchResultsContainer" class="hidden space-y-3">
         <div class="bg-slate-900/90 border border-slate-700 p-3 rounded-xl flex flex-wrap items-center gap-2.5">
           <div class="flex-1 min-w-[200px]">
@@ -146,7 +146,7 @@
           >
             <option value="ALL">Tutti gli stati</option>
             <option value="VALID">Solo Integri (L2 OK)</option>
-            <option value="INVALID">Solo Manomessi / Bloccati</option>
+            <option value="INVALID">Solo Manomessi / Errori</option>
           </select>
           <select
             id="filterSeqSelect"
@@ -172,7 +172,7 @@
                 <th class="p-2.5">Esito</th>
                 <th class="p-2.5">Seq #</th>
                 <th class="p-2.5">Timestamp / Log ID</th>
-                <th class="p-2.5">Contenuto Log Decifrato</th>
+                <th class="p-2.5">Contenuto Log / Stato Cifratura</th>
                 <th class="p-2.5">Batch &amp; Prova L2</th>
               </tr>
             </thead>
@@ -340,7 +340,7 @@
             timestamp: item.timestamp || new Date().toISOString(),
             raw_log: item.raw_log || item.raw || item.message || item.log || "",
             encrypted: item.encrypted || null,
-            leaf: item.leaf || null,
+            leaf: item.leaf || item.leaf_hash || null,
             batch_id: bId,
             proof: Array.isArray(item.proof) ? item.proof : []
           });
@@ -360,7 +360,7 @@
                 timestamp: item.timestamp || new Date().toISOString(),
                 raw_log: item.raw_log || item.raw || item.message || item.log || "",
                 encrypted: item.encrypted || null,
-                leaf: item.leaf || null,
+                leaf: item.leaf || item.leaf_hash || null,
                 batch_id: item.batch_id || item.batchId || "",
                 proof: Array.isArray(item.proof) ? item.proof : []
               });
@@ -678,10 +678,24 @@
           ? `<a href="https://sepolia.arbiscan.io/tx/${txProof.txHash}" target="_blank" class="text-[10px] text-indigo-300 underline hover:text-indigo-200 block mt-0.5">Arbiscan TX &nearr;</a>`
           : "";
 
+        let badgeClass = "bg-rose-950 text-rose-300 border border-rose-800";
+        if (row.isMatch && row.isBlindVerified) {
+          badgeClass = "bg-sky-950 text-sky-300 border border-sky-700";
+        } else if (row.isMatch) {
+          badgeClass = "bg-emerald-950 text-emerald-300 border border-emerald-800";
+        }
+
+        let textClass = "text-rose-300";
+        if (row.isMatch && row.isBlindVerified) {
+          textClass = "text-sky-200";
+        } else if (row.isMatch) {
+          textClass = "text-emerald-200";
+        }
+
         rowsHtml += `
           <tr class="${row.isMatch ? "hover:bg-slate-700/20" : "bg-rose-950/30 hover:bg-rose-950/40"} transition">
             <td class="p-2 whitespace-nowrap">
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${row.isMatch ? "bg-emerald-950 text-emerald-300 border border-emerald-800" : "bg-rose-950 text-rose-300 border border-rose-800"}">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${badgeClass}">
                 ${row.statusLabel}
               </span>
             </td>
@@ -693,7 +707,7 @@
                 <button onclick="copyToClipboard('${row.logIdFull}', this)" class="text-[9px] bg-slate-800 hover:bg-slate-700 px-1 py-0.5 rounded text-slate-300">📋</button>
               </div>
             </td>
-            <td class="p-2 ${row.isMatch ? "text-emerald-200" : "text-rose-300"} break-all max-w-md font-mono" title="${safeTitle}">${row.displayLogText}</td>
+            <td class="p-2 ${textClass} break-all max-w-md font-mono" title="${safeTitle}">${row.displayLogText}</td>
             <td class="p-2 text-slate-400 font-mono">
               <div class="flex items-center gap-1">
                 <span>${row.batchIdFull.slice(0, 8)}...</span>
@@ -711,7 +725,7 @@
       document.getElementById("batchSummaryBar").classList.remove("hidden");
       document.getElementById("batchResultsContainer").classList.remove("hidden");
       const tbody = document.getElementById("batchTableBody");
-      tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-400">Decifratura AES-256-GCM, verifica Merkle Root e riscontro TX su Arbitrum Sepolia...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-400">Verifica Merkle Root su Arbitrum Sepolia e controllo cifratura AES-256-GCM...</td></tr>';
 
       let valid = 0, tampered = 0;
       verifiedRowsModel = [];
@@ -729,28 +743,42 @@
       for (let i = 0; i < entries.length; i++) {
         const entry = entries[i];
         let isMatch = false;
+        let isBlindVerified = false;
         let displayLogText = "";
         let statusLabel = "MANOMESSO &cross;";
 
         try {
-          let plaintextLog = entry.raw_log;
+          if (!entry.proof || !entry.batch_id) throw new Error("Campi Merkle mancanti");
+
+          let targetLeaf = null;
+
           if (entry.encrypted && typeof entry.encrypted === "object") {
-            try {
-              plaintextLog = await decryptLogRecord(entry.encrypted, aesKeyHex);
-              displayLogText = plaintextLog;
-            } catch (decErr) {
-              displayLogText = `[🔒 CIFRATO / ERRORE AES: ${decErr.message || "Chiave errata"}]`;
-              statusLabel = (!aesKeyHex) ? "CHIAVE RICHIESTA 🔒" : "KEY / TAG FAIL &cross;";
-              throw decErr;
+            if (!aesKeyHex) {
+              // MODALITA' BLIND VERIFICATION (Senza chiave AES): usa la foglia salvata nel JSON
+              if (!entry.leaf) throw new Error("Foglia Merkle assente nel record cifrato");
+              targetLeaf = entry.leaf.startsWith("0x") ? entry.leaf : "0x" + entry.leaf;
+              isBlindVerified = true;
+              displayLogText = `[🔒 PAYLOAD CIFRATO AES-256-GCM — Leaf: ${targetLeaf.slice(0, 14)}... (Inserisci la chiave AES per leggere in chiaro)]`;
+            } else {
+              // MODALITA' FULL VERIFICATION (Con chiave AES): decifra e ricalcola la foglia dal plaintext
+              try {
+                const plaintextLog = await decryptLogRecord(entry.encrypted, aesKeyHex);
+                targetLeaf = MerkleEngine.hashLeaf(plaintextLog);
+                displayLogText = plaintextLog;
+              } catch (decErr) {
+                displayLogText = `[❌ ERRORE DECIFRATURA AES: ${decErr.message || "Chiave errata o Auth Tag GCM non valido"}]`;
+                statusLabel = "CHIAVE ERRATA &cross;";
+                throw decErr;
+              }
             }
           } else {
-            displayLogText = plaintextLog || "[Vuoto]";
+            // Log legacy in chiaro
+            if (!entry.raw_log) throw new Error("Log in chiaro vuoto");
+            targetLeaf = MerkleEngine.hashLeaf(entry.raw_log);
+            displayLogText = entry.raw_log;
           }
 
-          if (!plaintextLog || !entry.proof || !entry.batch_id) throw new Error("Campi mancanti");
-
-          const computedLeaf = MerkleEngine.hashLeaf(plaintextLog);
-          const computedRoot = MerkleEngine.computeRoot(computedLeaf, entry.proof);
+          const computedRoot = MerkleEngine.computeRoot(targetLeaf, entry.proof);
           computedBatchRoots[entry.batch_id] = computedRoot;
 
           if (!rootCache[entry.batch_id]) {
@@ -760,7 +788,9 @@
 
           if (onChainRoot && onChainRoot !== ethers.ZeroHash && onChainRoot.toLowerCase() === computedRoot.toLowerCase()) {
             isMatch = true;
-            statusLabel = "INTEGRO &check;";
+            statusLabel = isBlindVerified ? "L2 INTEGRO (CIFRATO) &check;" : "INTEGRO &check;";
+          } else {
+            statusLabel = "ROOT MISMATCH &cross;";
           }
         } catch (e) {
           console.warn("Verifica record fallita:", e);
@@ -770,6 +800,7 @@
 
         verifiedRowsModel.push({
           isMatch,
+          isBlindVerified,
           statusLabel,
           seqNum: entry.sequence_num,
           seqDisplay: (entry.sequence_num !== null && entry.sequence_num !== undefined) ? `#${entry.sequence_num}` : "-",
