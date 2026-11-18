@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - L2 Merkle Sentinel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.2/ethers.umd.min.js"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-6">
+  <div class="max-w-5xl mx-auto space-y-6">
+
+    <!-- Navbar condivisa -->
+    <div id="appNavbar"></div>
+
+    <!-- METRICHE GLOBALI SOC -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bg-slate-800/90 border border-slate-700 p-4 rounded-xl">
+        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Host Censiti</span>
+        <span id="metricTotalHosts" class="text-2xl font-black text-white mt-1 block">--</span>
+      </div>
+      <div class="bg-slate-800/90 border border-slate-700 p-4 rounded-xl">
+        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Stato Nodi</span>
+        <div class="mt-1 flex items-baseline gap-2">
+          <span id="metricActiveHosts" class="text-2xl font-black text-emerald-400">--</span>
+          <span class="text-xs text-slate-400">attivi</span>
+        </div>
+      </div>
+      <div class="bg-slate-800/90 border border-slate-700 p-4 rounded-xl">
+        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Batch Ancorati</span>
+        <span id="metricTotalBatches" class="text-2xl font-black text-sky-400 mt-1 block">--</span>
+      </div>
+      <div class="bg-slate-800/90 border border-slate-700 p-4 rounded-xl">
+        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Smart Contract</span>
+        <div class="flex items-center gap-1.5 mt-2">
+          <span class="text-[11px] font-mono text-amber-300">0x9584...9f056</span>
+          <button onclick="copyToClipboard('0x95847671fd4c9acca5c83f0b4ca570fd1de9f056', this)" class="text-[10px] bg-slate-700 hover:bg-slate-600 px-1.5 py-0.5 rounded text-slate-300 transition" title="Copia Indirizzo Contratto">📋</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- VISTA PRINCIPALE: TABELLA HOST + ISPEZIONE BATCH -->
+    <div id="mainView" class="space-y-6">
+      <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 space-y-4">
+        <div class="flex justify-between items-center">
+          <div>
+            <h2 class="text-md font-bold text-sky-400">Infrastruttura Nodi Registrati</h2>
+            <p class="text-xs text-slate-400">Seleziona un nodo per visualizzare l'ultimo heartbeat e gli ancoraggi su Arbiscan</p>
+          </div>
+          <button onclick="refreshDashboard()" class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-lg transition">Aggiorna</button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-300">
+            <thead class="bg-slate-900 text-slate-400 uppercase">
+              <tr>
+                <th class="p-2.5">Indirizzo L2</th>
+                <th class="p-2.5">Hostname</th>
+                <th class="p-2.5">IP</th>
+                <th class="p-2.5">Stato</th>
+                <th class="p-2.5 text-right">Azioni</th>
+              </tr>
+            </thead>
+            <tbody id="hostsTableBody" class="divide-y divide-slate-700">
+              <tr><td colspan="5" class="p-4 text-center text-slate-500">Caricamento nodi...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ISPEZIONE RAPIDA BATCH ID -->
+      <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 space-y-4">
+        <div>
+          <h2 class="text-md font-bold text-sky-400 flex items-center gap-2">
+            <span>🔍</span> Ispezione Puntuale Batch On-Chain
+          </h2>
+          <p class="text-xs text-slate-400 mt-0.5">Interroga lo smart contract per verificare l'esistenza e la Merkle Root di un singolo Batch UUID</p>
+        </div>
+        <div class="flex gap-3">
+          <input id="verifyBatchId" placeholder="Batch ID (es. 13b76421-b6d7-4af6-852a-76ebe3ef2ca7)" class="flex-1 bg-slate-900 border border-slate-700 p-2.5 rounded-lg text-white focus:outline-none focus:border-sky-400 font-mono text-xs" />
+          <button onclick="checkBatchStatus()" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg text-xs font-semibold transition">
+            Cerca Root
+          </button>
+        </div>
+        <div id="verifyResult" class="hidden p-3.5 rounded-lg text-xs font-mono break-all"></div>
+      </div>
+    </div>
+
+    <!-- VISTA DETTAGLIO HOST -->
+    <div id="detailView" class="hidden space-y-6">
+      <div class="flex justify-between items-center">
+        <button onclick="showMainView()" class="bg-slate-700 hover:bg-slate-600 text-xs px-4 py-2 rounded-lg font-semibold transition">
+          &larr; Torna all'elenco nodi
+        </button>
+        <div id="hostActionContainer"></div>
+      </div>
+
+      <div class="bg-slate-800 p-6 rounded-xl border border-sky-500/30 space-y-4 shadow">
+        <div class="flex justify-between items-start">
+          <div>
+            <h2 id="detailHostname" class="text-2xl font-bold text-sky-400">Hostname</h2>
+            <div class="flex items-center gap-2 mt-1">
+              <p id="detailAddr" class="text-xs font-mono text-slate-400 break-all"></p>
+              <button id="btnCopyDetailAddr" class="text-[10px] bg-slate-700 hover:bg-slate-600 px-1.5 py-0.5 rounded text-slate-300 transition">📋 Copia</button>
+            </div>
+          </div>
+          <span id="detailStatusBadge" class="text-xs font-semibold px-3 py-1 rounded"></span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs pt-3 border-t border-slate-700">
+          <div><span class="text-slate-400">Indirizzo IP:</span> <b id="detailIp" class="text-slate-200 font-mono"></b></div>
+          <div><span class="text-slate-400">Registrato il:</span> <b id="detailDate" class="text-slate-200"></b></div>
+          <div>
+            <span class="text-slate-400 block">Ultimo Heartbeat Notarizzato:</span>
+            <span id="detailHeartbeatBadge" class="inline-flex items-center gap-1.5 mt-0.5 font-semibold text-slate-300">
+              In attesa di scansione...
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 space-y-4 shadow">
+        <div class="flex justify-between items-center">
+          <div>
+            <h3 class="text-md font-bold text-white">Storico Batch Ancorati su L2</h3>
+            <p class="text-xs text-slate-400">Eventi <code class="text-sky-300">BatchAnchored</code> emessi da questo nodo</p>
+          </div>
+          <button onclick="loadHostLogs(currentSelectedHost)" class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-lg transition">Ricarica</button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-300">
+            <thead class="bg-slate-900 text-slate-400 uppercase">
+              <tr>
+                <th class="p-2.5">Batch ID</th>
+                <th class="p-2.5">Merkle Root</th>
+                <th class="p-2.5">Data/Ora On-Chain</th>
+                <th class="p-2.5">Log Inclusi</th>
+                <th class="p-2.5 text-right">Explorer</th>
+              </tr>
+            </thead>
+            <tbody id="hostLogsTableBody" class="divide-y divide-slate-700 font-mono">
+              <tr><td colspan="5" class="p-4 text-center text-slate-500">Ricerca eventi on-chain...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    let currentSelectedHost = null;
+
+    window.addEventListener("DOMContentLoaded", async () => {
+      const ok = await requireAuth("dashboard");
+      if (ok) await refreshDashboard();
+    });
+
+    async function refreshDashboard() {
+      await loadGlobalMetrics();
+      await loadHosts();
+    }
+
+    async function loadGlobalMetrics() {
+      try {
+        const total = await contract.getHostCount();
+        const active = await contract.activeHostCount();
+        const batches = await contract.totalBatchesAnchored();
+
+        document.getElementById("metricTotalHosts").innerText = total.toString();
+        document.getElementById("metricActiveHosts").innerText = active.toString();
+        document.getElementById("metricTotalBatches").innerText = batches.toString();
+      } catch (err) {
+        console.warn(err);
+      }
+    }
+
+    async function loadHosts() {
+      const tbody = document.getElementById("hostsTableBody");
+      tbody.innerHTML = '<tr><td colspan="5" class="p-3 text-center text-slate-400">Caricamento nodi...</td></tr>';
+
+      try {
+        const addresses = await contract.getAllHosts();
+        if (addresses.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" class="p-3 text-center text-slate-500">Nessun host registrato.</td></tr>';
+          return;
+        }
+
+        let rows = "";
+        for (const addr of addresses) {
+          const data = await contract.registeredHosts(addr);
+          const statusBadge = data.isActive
+            ? '<span class="px-2 py-0.5 rounded bg-emerald-900/80 text-emerald-300 font-semibold text-[11px]">Attivo</span>'
+            : '<span class="px-2 py-0.5 rounded bg-rose-900/80 text-rose-300 font-semibold text-[11px]">Revocato</span>';
+
+          rows += `
+            <tr class="hover:bg-slate-700/30 transition">
+              <td class="p-2.5 font-mono text-sky-300">
+                <div class="flex items-center gap-1.5">
+                  <span>${addr.slice(0, 8)}...${addr.slice(-6)}</span>
+                  <button onclick="copyToClipboard('${addr}', this)" class="text-[10px] bg-slate-800 hover:bg-slate-700 px-1 py-0.5 rounded text-slate-300" title="Copia Indirizzo">📋</button>
+                </div>
+              </td>
+              <td class="p-2.5 font-semibold text-white">${data.hostname}</td>
+              <td class="p-2.5 font-mono text-slate-300">${data.ipAddress}</td>
+              <td class="p-2.5">${statusBadge}</td>
+              <td class="p-2.5 text-right">
+                <button onclick="openHostDetail('${addr}')" class="bg-sky-700/80 hover:bg-sky-600 text-white px-3 py-1 rounded text-xs transition">Dettagli &amp; Log</button>
+              </td>
+            </tr>
+          `;
+        }
+        tbody.innerHTML = rows;
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-3 text-center text-rose-400">Errore: ${err.message}</td></tr>`;
+      }
+    }
+
+    async function openHostDetail(addr) {
+      currentSelectedHost = addr;
+      document.getElementById("mainView").classList.add("hidden");
+      document.getElementById("detailView").classList.remove("hidden");
+
+      try {
+        const data = await contract.registeredHosts(addr);
+        document.getElementById("detailHostname").innerText = data.hostname;
+        document.getElementById("detailAddr").innerText = addr;
+        document.getElementById("btnCopyDetailAddr").onclick = (e) => copyToClipboard(addr, e.currentTarget);
+        document.getElementById("detailIp").innerText = data.ipAddress;
+        document.getElementById("detailDate").innerText = Number(data.registeredAt) > 0 ? new Date(Number(data.registeredAt) * 1000).toLocaleString() : "-";
+
+        const badge = document.getElementById("detailStatusBadge");
+        const actionContainer = document.getElementById("hostActionContainer");
+
+        if (data.isActive) {
+          badge.className = "text-xs font-semibold px-3 py-1 rounded bg-emerald-900/80 text-emerald-300";
+          badge.innerText = "ATTIVO";
+          actionContainer.innerHTML = isCurrentAdmin
+            ? `<button onclick="toggleHostStatus('${addr}', true)" class="bg-rose-600 hover:bg-rose-500 px-3 py-1.5 rounded-lg text-xs font-semibold transition">Revoca Host</button>`
+            : "";
+        } else {
+          badge.className = "text-xs font-semibold px-3 py-1 rounded bg-rose-900/80 text-rose-300";
+          badge.innerText = "REVOCATO";
+          actionContainer.innerHTML = isCurrentAdmin
+            ? `<button onclick="toggleHostStatus('${addr}', false)" class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 rounded-lg text-xs font-semibold transition">Riattiva Host</button>`
+            : "";
+        }
+
+        await loadHostLogs(addr);
+      } catch (e) {
+        alert("Errore: " + e.message);
+      }
+    }
+
+    async function toggleHostStatus(address, currentStatus) {
+      try {
+        let tx;
+        if (currentStatus) {
+          if (!confirm("Revocare l'host?")) return;
+          tx = await contract.offboardHost(address);
+        } else {
+          if (!confirm("Riattivare l'host?")) return;
+          tx = await contract.reactivateHost(address);
+        }
+        await tx.wait();
+        alert("Stato aggiornato!");
+        await openHostDetail(address);
+        await refreshDashboard();
+      } catch (err) {
+        alert("Errore: " + (err.reason || err.message));
+      }
+    }
+
+    async function loadHostLogs(addr) {
+      const tbody = document.getElementById("hostLogsTableBody");
+      const hbBadge = document.getElementById("detailHeartbeatBadge");
+      tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-400">Ricerca batch su L2...</td></tr>';
+
+      try {
+        const filter = contract.filters.BatchAnchored(null, null, addr);
+        const currentBlock = await provider.getBlockNumber();
+        const fromBlock = Math.max(0, currentBlock - 100000);
+        const logs = await contract.queryFilter(filter, fromBlock, "latest");
+
+        if (logs.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-500">Nessun batch inviato di recente da questo host.</td></tr>';
+          hbBadge.innerHTML = `<span class="text-slate-400">Nessun ancoraggio recente</span>`;
+          return;
+        }
+
+        const latestArgs = logs[logs.length - 1].args;
+        const latestTimestampSec = Number(latestArgs.timestamp !== undefined ? latestArgs.timestamp : latestArgs[3]);
+
+        if (latestTimestampSec > 0) {
+          const lastSeenDate = new Date(latestTimestampSec * 1000);
+          const diffMinutes = Math.floor((Math.floor(Date.now() / 1000) - latestTimestampSec) / 60);
+
+          if (diffMinutes <= 15) {
+            hbBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span><span class="text-emerald-300">${lastSeenDate.toLocaleTimeString()} (${diffMinutes}m fa - OK)</span>`;
+          } else if (diffMinutes <= 60) {
+            hbBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400"></span><span class="text-amber-300">${lastSeenDate.toLocaleTimeString()} (${diffMinutes}m fa - Silente)</span>`;
+          } else {
+            hbBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-400"></span><span class="text-rose-400">${lastSeenDate.toLocaleDateString()} ${lastSeenDate.toLocaleTimeString()} (${Math.floor(diffMinutes / 60)}h fa - Inattivo)</span>`;
+          }
+        }
+
+        let rows = "";
+        for (let i = logs.length - 1; i >= 0; i--) {
+          const item = logs[i];
+          const args = item.args;
+          const rawBatchId = (args.batchId !== undefined) ? args.batchId : args[0];
+          const batchIdStr = (rawBatchId && typeof rawBatchId === "object") ? (rawBatchId.hash || rawBatchId.toString()) : String(rawBatchId || "");
+          const rawRoot = (args.merkleRoot !== undefined) ? args.merkleRoot : args[1];
+          const rootStr = (rawRoot && typeof rawRoot === "object") ? (rawRoot.hash || rawRoot.toString()) : String(rawRoot || "");
+          const timestampSec = Number((args.timestamp !== undefined) ? args.timestamp : args[3] || 0);
+          const formattedDate = timestampSec > 0 ? new Date(timestampSec * 1000).toLocaleString() : "N/D";
+          const logCountStr = ((args.logCount !== undefined) ? args.logCount : args[4] || "N/D").toString();
+
+          rows += `
+            <tr class="hover:bg-slate-700/30 transition">
+              <td class="p-2.5 text-sky-300 font-mono">
+                <div class="flex items-center gap-1.5">
+                  <span title="${batchIdStr}">${batchIdStr.slice(0, 10)}...${batchIdStr.slice(-4)}</span>
+                  <button onclick="copyToClipboard('${batchIdStr}', this)" class="text-[10px] bg-slate-800 hover:bg-slate-700 px-1 py-0.5 rounded text-slate-300">📋</button>
+                </div>
+              </td>
+              <td class="p-2.5 text-slate-400 font-mono">
+                <div class="flex items-center gap-1.5">
+                  <span title="${rootStr}">${rootStr.slice(0, 10)}...${rootStr.slice(-6)}</span>
+                  <button onclick="copyToClipboard('${rootStr}', this)" class="text-[10px] bg-slate-800 hover:bg-slate-700 px-1 py-0.5 rounded text-slate-300">📋</button>
+                </div>
+              </td>
+              <td class="p-2.5 text-slate-300 text-[11px] whitespace-nowrap">${formattedDate}</td>
+              <td class="p-2.5 text-slate-300 font-semibold">${logCountStr}</td>
+              <td class="p-2.5 text-right">
+                <a href="https://sepolia.arbiscan.io/tx/${item.transactionHash}" target="_blank" class="text-sky-400 underline hover:text-sky-300">Arbiscan &nearr;</a>
+              </td>
+            </tr>
+          `;
+        }
+        tbody.innerHTML = rows;
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-rose-400 p-4 text-center">Errore: ${e.message}</td></tr>`;
+      }
+    }
+
+    function showMainView() {
+      document.getElementById("detailView").classList.add("hidden");
+      document.getElementById("mainView").classList.remove("hidden");
+    }
+
+    async function checkBatchStatus() {
+      const id = document.getElementById("verifyBatchId").value.trim();
+      const res = document.getElementById("verifyResult");
+      res.classList.remove("hidden", "bg-emerald-900/50", "text-emerald-300", "bg-rose-900/50", "text-rose-300");
+      if (!id) return;
+
+      try {
+        const root = await contract.batchRoots(id);
+        if (root !== ethers.ZeroHash) {
+          res.classList.add("bg-emerald-900/50", "text-emerald-300");
+          res.innerHTML = `
+            <div class="flex items-center justify-between gap-2">
+              <div><b>Batch Trovato su L2.</b> Merkle Root Immutabile:<br><span class="text-xs break-all">${root}</span></div>
+              <button onclick="copyToClipboard('${root}', this)" class="text-xs bg-slate-800 px-2.5 py-1.5 rounded text-slate-200 whitespace-nowrap">📋 Copia Root</button>
+            </div>
+          `;
+        } else {
+          res.classList.add("bg-rose-900/50", "text-rose-300");
+          res.innerText = "Batch non trovato o inesistente su Arbitrum Sepolia.";
+        }
+      } catch (err) {
+        res.classList.add("bg-rose-900/50", "text-rose-300");
+        res.innerText = "Errore di connessione RPC.";
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verifica Forense - L2 Merkle Sentinel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.2/ethers.umd.min.js"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-6">
+  <div class="max-w-5xl mx-auto space-y-6">
+
+    <!-- Navbar condivisa -->
+    <div id="appNavbar"></div>
+
+    <!-- WORKSPACE FORENSE -->
+    <div class="bg-slate-800 p-6 rounded-xl border border-emerald-500/40 space-y-6 shadow-lg">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-700 pb-4">
+        <div>
+          <h2 class="text-lg font-bold text-emerald-400 flex items-center gap-2">
+            <span>🌳</span> Merkle Forensic Verifier &amp; Hash Chain Auditor
+          </h2>
+          <p class="text-xs text-slate-400 mt-1">
+            Verifica crittografica client-side dei batch JSON contro lo Smart Contract su Arbitrum Sepolia con riscontro diretto su Arbiscan.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 self-end sm:self-center">
+          <span id="loadedBatchesCounterBadge" class="hidden text-[11px] font-mono bg-slate-900 border border-slate-700 text-sky-300 px-2.5 py-1.5 rounded-lg">
+            0 batch in memoria
+          </span>
+          <button
+            type="button"
+            onclick="clearLoadedBatches()"
+            class="bg-rose-900/80 hover:bg-rose-800 border border-rose-700 text-rose-100 px-3.5 py-2 rounded-lg text-xs font-bold transition whitespace-nowrap flex items-center gap-1.5 shadow"
+          >
+            🧹 Pulisci Batch
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 1: CHIAVE AES -->
+      <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-700 space-y-2.5">
+        <div class="flex justify-between items-center">
+          <label for="auditorAesKey" class="block text-xs font-bold text-amber-400 uppercase tracking-wider">
+            Step 1 &bull; Chiave di Decifratura Audit (AES-256-GCM Hex - 64 caratteri)
+          </label>
+          <button type="button" onclick="toggleAesKeyVisibility()" class="text-[11px] text-slate-400 hover:text-slate-200 underline">
+            Mostra/Nascondi
+          </button>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <input
+            id="auditorAesKey"
+            type="password"
+            oninput="syncAesKeyToSession()"
+            placeholder="Incolla qui la chiave esadecimale a 64 caratteri (slot TPM 0x1500019)..."
+            class="flex-1 min-w-[240px] bg-slate-950 border border-slate-700 p-2.5 rounded-lg text-xs text-amber-300 font-mono focus:outline-none focus:border-emerald-500"
+          />
+          <button
+            id="reverifyBtn"
+            type="button"
+            onclick="reverifyLastLoadedEntries()"
+            class="hidden bg-emerald-700 hover:bg-emerald-600 text-white px-3.5 py-2 rounded-lg text-xs font-semibold transition whitespace-nowrap"
+          >
+            🔓 Decifra e Riverifica
+          </button>
+          <button
+            type="button"
+            onclick="clearAesKey()"
+            class="bg-rose-900/70 hover:bg-rose-800 border border-rose-700/60 text-rose-200 px-3 py-2 rounded-lg text-xs font-semibold transition whitespace-nowrap"
+          >
+            🗑️ Dimentica Chiave
+          </button>
+        </div>
+        <p class="text-[11px] text-slate-500">
+          La decifratura avviene interamente nel browser tramite <code class="text-slate-400">window.crypto.subtle</code>. La chiave resta solo nella tua sessione locale.
+        </p>
+      </div>
+
+      <!-- STEP 2: UPLOAD FILE JSON -->
+      <div class="space-y-2">
+        <span class="block text-xs font-bold text-sky-400 uppercase tracking-wider">
+          Step 2 &bull; Carica uno o più file Batch JSON (<code class="text-emerald-300">seq_XXXXX_batch_*.json</code>)
+        </span>
+        <div id="dropZone" class="border-2 border-dashed border-slate-700 hover:border-emerald-500/60 rounded-xl p-7 text-center bg-slate-900/60 cursor-pointer transition">
+          <input type="file" id="batchFileInput" accept=".json,.log,.txt" multiple class="hidden" onchange="handleFileSelected(event)" />
+          <div class="space-y-2 pointer-events-none">
+            <div class="text-3xl">📚</div>
+            <div class="text-sm font-semibold text-slate-300">
+              Trascina qui i file batch JSON o <span class="text-emerald-400 underline">clicca per selezionarli</span>
+            </div>
+            <div class="text-xs text-slate-500">
+              Puoi caricare più batch contemporaneamente per verificare la continuità sequenziale (<code class="text-slate-400">prev_batch_hash</code>), l'ancoraggio on-chain e le prove Arbiscan.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3: METRICHE RIEPILOGATIVE -->
+      <div id="batchSummaryBar" class="hidden grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+        <div class="bg-slate-900 border border-slate-700 p-3 rounded-lg text-center">
+          <span class="text-[11px] text-slate-400 uppercase tracking-wider block">Log Totali</span>
+          <b id="batchTotalCount" class="text-xl text-white">0</b>
+        </div>
+        <div class="bg-slate-900 border border-emerald-800/60 p-3 rounded-lg text-center">
+          <span class="text-[11px] text-emerald-400 uppercase tracking-wider block">Log Integri (L2 OK)</span>
+          <b id="batchValidCount" class="text-xl text-emerald-400">0</b>
+        </div>
+        <div class="bg-slate-900 border border-rose-800/60 p-3 rounded-lg text-center">
+          <span class="text-[11px] text-rose-400 uppercase tracking-wider block">Manomessi / Lock</span>
+          <b id="batchTamperedCount" class="text-xl text-rose-400">0</b>
+        </div>
+        <div class="bg-slate-900 border border-amber-700/60 p-3 rounded-lg text-center">
+          <span class="text-[11px] text-amber-400 uppercase tracking-wider block">Stato Hash Chain</span>
+          <b id="batchChainStatusText" class="text-sm font-mono text-amber-300 mt-1 block">--</b>
+        </div>
+      </div>
+
+      <!-- PANNELLO HASH CHAIN + VERIFICA DIRETTA ON-CHAIN -->
+      <div id="chainAuditPanel" class="hidden bg-slate-900/95 border border-slate-700 rounded-xl p-4 space-y-3">
+        <div class="flex flex-wrap justify-between items-center gap-2 border-b border-slate-800 pb-2">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
+            <span>⛓️</span> Continuità Batch &amp; Verifica On-Chain (Arbiscan Proof)
+          </h3>
+          <span id="chainSummaryBadge" class="text-[11px] font-mono px-2.5 py-0.5 rounded font-semibold"></span>
+        </div>
+        <div id="chainTimelineContainer" class="space-y-2 text-xs font-mono max-h-72 overflow-y-auto pr-1"></div>
+      </div>
+
+      <!-- BARRA FILTRI & TABELLA LOG DECIFRATI -->
+      <div id="batchResultsContainer" class="hidden space-y-3">
+        <div class="bg-slate-900/90 border border-slate-700 p-3 rounded-xl flex flex-wrap items-center gap-2.5">
+          <div class="flex-1 min-w-[200px]">
+            <input
+              id="filterSearchInput"
+              type="text"
+              oninput="applyLogFilters()"
+              placeholder="🔍 Filtra per testo log, IP, utente o Log ID..."
+              class="w-full bg-slate-950 border border-slate-700 px-3 py-1.5 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-sky-400"
+            />
+          </div>
+          <select
+            id="filterStatusSelect"
+            onchange="applyLogFilters()"
+            class="bg-slate-950 border border-slate-700 px-3 py-1.5 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-sky-400"
+          >
+            <option value="ALL">Tutti gli stati</option>
+            <option value="VALID">Solo Integri (L2 OK)</option>
+            <option value="INVALID">Solo Manomessi / Bloccati</option>
+          </select>
+          <select
+            id="filterSeqSelect"
+            onchange="applyLogFilters()"
+            class="bg-slate-950 border border-slate-700 px-3 py-1.5 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-sky-400"
+          >
+            <option value="ALL">Tutti i Batch (Seq #)</option>
+          </select>
+          <button
+            type="button"
+            onclick="resetLogFilters()"
+            class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1.5 rounded-lg transition"
+          >
+            Reset Filtri
+          </button>
+          <span id="filteredRowsCounter" class="text-[11px] font-mono text-slate-400 ml-auto"></span>
+        </div>
+
+        <div class="overflow-x-auto max-h-[28rem] border border-slate-700 rounded-lg">
+          <table class="w-full text-left text-xs text-slate-300">
+            <thead class="bg-slate-900 text-slate-400 uppercase sticky top-0 border-b border-slate-700">
+              <tr>
+                <th class="p-2.5">Esito</th>
+                <th class="p-2.5">Seq #</th>
+                <th class="p-2.5">Timestamp / Log ID</th>
+                <th class="p-2.5">Contenuto Log Decifrato</th>
+                <th class="p-2.5">Batch &amp; Prova L2</th>
+              </tr>
+            </thead>
+            <tbody id="batchTableBody" class="divide-y divide-slate-700 font-mono text-[11px]"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    let lastLoadedEntries = [];
+    let lastLoadedBatchesMap = {};
+    let verifiedRowsModel = [];
+    let onChainTxCache = {};
+
+    window.addEventListener("DOMContentLoaded", async () => {
+      const ok = await requireAuth("verifier");
+      if (!ok) return;
+
+      const savedAes = sessionStorage.getItem("sentinel_aes_key");
+      if (savedAes) {
+        document.getElementById("auditorAesKey").value = savedAes;
+      }
+      setupDragAndDrop();
+    });
+
+    function syncAesKeyToSession() {
+      const val = document.getElementById("auditorAesKey").value.trim();
+      if (val) sessionStorage.setItem("sentinel_aes_key", val);
+      else sessionStorage.removeItem("sentinel_aes_key");
+    }
+
+    function toggleAesKeyVisibility() {
+      const input = document.getElementById("auditorAesKey");
+      input.type = (input.type === "password") ? "text" : "password";
+    }
+
+    async function clearAesKey() {
+      document.getElementById("auditorAesKey").value = "";
+      sessionStorage.removeItem("sentinel_aes_key");
+      if (lastLoadedEntries.length > 0) {
+        await reverifyLastLoadedEntries();
+      }
+    }
+
+    function clearLoadedBatches() {
+      lastLoadedEntries = [];
+      lastLoadedBatchesMap = {};
+      verifiedRowsModel = [];
+      onChainTxCache = {};
+      document.getElementById("batchFileInput").value = "";
+      document.getElementById("batchSummaryBar").classList.add("hidden");
+      document.getElementById("chainAuditPanel").classList.add("hidden");
+      document.getElementById("batchResultsContainer").classList.add("hidden");
+      document.getElementById("reverifyBtn").classList.add("hidden");
+
+      const counterBadge = document.getElementById("loadedBatchesCounterBadge");
+      counterBadge.classList.add("hidden");
+      counterBadge.innerText = "0 batch in memoria";
+    }
+
+    function setupDragAndDrop() {
+      const dropZone = document.getElementById("dropZone");
+      const fileInput = document.getElementById("batchFileInput");
+
+      dropZone.onclick = () => fileInput.click();
+      dropZone.ondragover = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.add("border-emerald-500", "bg-slate-800/80");
+      };
+      dropZone.ondragleave = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.remove("border-emerald-500", "bg-slate-800/80");
+      };
+      dropZone.ondrop = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.remove("border-emerald-500", "bg-slate-800/80");
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+          processMultipleBatchFiles(e.dataTransfer.files);
+        }
+      };
+    }
+
+    function handleFileSelected(event) {
+      if (event.target && event.target.files && event.target.files.length > 0) {
+        processMultipleBatchFiles(event.target.files);
+      }
+    }
+
+    async function reverifyLastLoadedEntries() {
+      if (lastLoadedEntries.length === 0) return;
+      await verifyMerkleBatch(lastLoadedEntries, lastLoadedBatchesMap);
+    }
+
+    function readFileAsText(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve({ name: file.name, content: e.target.result });
+        reader.onerror = (err) => reject(err);
+        reader.readAsText(file);
+      });
+    }
+
+    function parseBatchContent(content, fileName) {
+      let entries = [];
+      let batchMeta = null;
+
+      try {
+        let json = JSON.parse(content.trim());
+        let rawList = [];
+
+        if (Array.isArray(json)) {
+          rawList = json;
+        } else if (typeof json === "object" && json !== null) {
+          if (Array.isArray(json.logs)) {
+            rawList = json.logs;
+            if (json.batch_id || json.sequence_num !== undefined) {
+              batchMeta = {
+                sequence_num: json.sequence_num !== undefined ? Number(json.sequence_num) : null,
+                batch_id: String(json.batch_id || ""),
+                prev_batch_hash: String(json.prev_batch_hash || ""),
+                merkle_root: String(json.merkle_root || ""),
+                batch_hash: String(json.batch_hash || ""),
+                file_name: fileName
+              };
+            }
+          } else if (json.id || json.log_id || json.batch_id) {
+            rawList = [json];
+          } else {
+            rawList = Object.values(json);
+          }
+        }
+
+        for (const item of rawList) {
+          if (typeof item !== "object" || item === null) continue;
+          const seqNum = item.sequence_num !== undefined ? Number(item.sequence_num) : (batchMeta ? batchMeta.sequence_num : null);
+          const bId = item.batch_id || item.batchId || (batchMeta ? batchMeta.batch_id : "");
+          const prevH = item.prev_batch_hash || (batchMeta ? batchMeta.prev_batch_hash : "");
+          const bHash = item.batch_hash || (batchMeta ? batchMeta.batch_hash : "");
+          const mRoot = item.merkle_root || (batchMeta ? batchMeta.merkle_root : "");
+
+          if (!batchMeta && bId) {
+            batchMeta = {
+              sequence_num: seqNum,
+              batch_id: String(bId),
+              prev_batch_hash: String(prevH),
+              merkle_root: String(mRoot),
+              batch_hash: String(bHash),
+              file_name: fileName
+            };
+          }
+
+          entries.push({
+            id: item.id || item.log_id || item.uuid || "N/D",
+            sequence_num: seqNum,
+            prev_batch_hash: prevH,
+            batch_hash: bHash,
+            merkle_root: mRoot,
+            timestamp: item.timestamp || new Date().toISOString(),
+            raw_log: item.raw_log || item.raw || item.message || item.log || "",
+            encrypted: item.encrypted || null,
+            leaf: item.leaf || null,
+            batch_id: bId,
+            proof: Array.isArray(item.proof) ? item.proof : []
+          });
+        }
+      } catch (jsonErr) {
+        const lines = content.split(/\r?\n/).filter(l => l.trim().length > 0);
+        for (const line of lines) {
+          try {
+            const item = JSON.parse(line.trim().replace(/,$/, ""));
+            if (typeof item === "object" && item !== null) {
+              entries.push({
+                id: item.id || item.log_id || item.uuid || "N/D",
+                sequence_num: item.sequence_num !== undefined ? Number(item.sequence_num) : null,
+                prev_batch_hash: item.prev_batch_hash || "",
+                batch_hash: item.batch_hash || "",
+                merkle_root: item.merkle_root || "",
+                timestamp: item.timestamp || new Date().toISOString(),
+                raw_log: item.raw_log || item.raw || item.message || item.log || "",
+                encrypted: item.encrypted || null,
+                leaf: item.leaf || null,
+                batch_id: item.batch_id || item.batchId || "",
+                proof: Array.isArray(item.proof) ? item.proof : []
+              });
+            }
+          } catch (_) {}
+        }
+      }
+
+      return { entries, batchMeta };
+    }
+
+    async function processMultipleBatchFiles(fileList) {
+      try {
+        const filesArray = Array.from(fileList);
+        const readResults = await Promise.all(filesArray.map(f => readFileAsText(f)));
+        const existingLogIds = new Set(lastLoadedEntries.map(e => `${e.batch_id}_${e.id}`));
+
+        for (const res of readResults) {
+          const parsed = parseBatchContent(res.content, res.name);
+          if (parsed.batchMeta && parsed.batchMeta.batch_id) {
+            lastLoadedBatchesMap[parsed.batchMeta.batch_id] = parsed.batchMeta;
+          }
+          for (const entry of parsed.entries) {
+            const uniqueKey = `${entry.batch_id}_${entry.id}`;
+            if (!existingLogIds.has(uniqueKey)) {
+              existingLogIds.add(uniqueKey);
+              lastLoadedEntries.push(entry);
+            }
+            if (entry.batch_id && !lastLoadedBatchesMap[entry.batch_id]) {
+              lastLoadedBatchesMap[entry.batch_id] = {
+                sequence_num: entry.sequence_num,
+                batch_id: entry.batch_id,
+                prev_batch_hash: entry.prev_batch_hash || "",
+                merkle_root: entry.merkle_root || "",
+                batch_hash: entry.batch_hash || "",
+                file_name: res.name
+              };
+            }
+          }
+        }
+
+        if (lastLoadedEntries.length === 0) {
+          alert("Nessun record valido rilevato nei file caricati.");
+          return;
+        }
+
+        lastLoadedEntries.sort((a, b) => {
+          const seqA = (a.sequence_num !== null && a.sequence_num !== undefined) ? a.sequence_num : 999999;
+          const seqB = (b.sequence_num !== null && b.sequence_num !== undefined) ? b.sequence_num : 999999;
+          return seqA - seqB;
+        });
+
+        const totalBatchesLoaded = Object.keys(lastLoadedBatchesMap).length;
+        const counterBadge = document.getElementById("loadedBatchesCounterBadge");
+        counterBadge.classList.remove("hidden");
+        counterBadge.innerText = `${totalBatchesLoaded} batch in memoria`;
+
+        document.getElementById("reverifyBtn").classList.remove("hidden");
+        await verifyMerkleBatch(lastLoadedEntries, lastLoadedBatchesMap);
+      } catch (err) {
+        alert("Errore nella lettura dei file: " + err.message);
+      }
+    }
+
+    async function fetchOnChainBatchProofs(batchIds) {
+      const missingIds = batchIds.filter(id => id && !onChainTxCache[id]);
+      if (missingIds.length === 0) return;
+
+      try {
+        const currentBlock = await provider.getBlockNumber();
+        const fromBlock = Math.max(0, currentBlock - 150000);
+        const filter = contract.filters.BatchAnchored();
+        const events = await contract.queryFilter(filter, fromBlock, "latest");
+
+        const targetSet = new Set(missingIds.map(id => id.toLowerCase()));
+        const indexedTopicsMap = {};
+        for (const id of missingIds) {
+          indexedTopicsMap[ethers.keccak256(ethers.toUtf8Bytes(id)).toLowerCase()] = id;
+        }
+
+        for (const ev of events) {
+          const args = ev.args;
+          const rawBatchId = (args.batchId !== undefined) ? args.batchId : args[0];
+          let matchedBatchId = null;
+
+          if (typeof rawBatchId === "string" && targetSet.has(rawBatchId.toLowerCase())) {
+            matchedBatchId = rawBatchId;
+          } else if (rawBatchId && typeof rawBatchId === "object" && rawBatchId.hash) {
+            matchedBatchId = indexedTopicsMap[rawBatchId.hash.toLowerCase()] || null;
+          } else if (ev.topics && ev.topics[1]) {
+            matchedBatchId = indexedTopicsMap[ev.topics[1].toLowerCase()] || null;
+          }
+
+          if (matchedBatchId) {
+            const ts = Number((args.timestamp !== undefined) ? args.timestamp : args[3] || 0);
+            const count = Number((args.logCount !== undefined) ? args.logCount : args[4] || 0);
+            onChainTxCache[matchedBatchId] = {
+              txHash: ev.transactionHash,
+              blockNumber: ev.blockNumber,
+              timestamp: ts,
+              logCount: count
+            };
+          }
+        }
+      } catch (err) {
+        console.warn("Impossibile recuperare eventi BatchAnchored:", err);
+      }
+    }
+
+    function evaluateBatchHashChain(batchesMap, onChainRootCache, computedBatchRoots) {
+      const panel = document.getElementById("chainAuditPanel");
+      const timeline = document.getElementById("chainTimelineContainer");
+      const summaryBadge = document.getElementById("chainSummaryBadge");
+      const metricChainText = document.getElementById("batchChainStatusText");
+
+      const batchList = Object.values(batchesMap).filter(b => b && b.batch_id);
+      if (batchList.length === 0) {
+        panel.classList.add("hidden");
+        metricChainText.innerText = "N/D";
+        return;
+      }
+
+      panel.classList.remove("hidden");
+      const sequencedBatches = batchList
+        .filter(b => b.sequence_num !== null && b.sequence_num !== undefined && !isNaN(b.sequence_num))
+        .sort((a, b) => a.sequence_num - b.sequence_num);
+
+      if (sequencedBatches.length === 0) {
+        summaryBadge.className = "text-[11px] font-mono px-2.5 py-0.5 rounded font-semibold bg-slate-800 text-slate-300";
+        summaryBadge.innerText = "FORMATO LEGACY (Senza Sequence #)";
+        metricChainText.innerText = "Legacy (No Seq)";
+        timeline.innerHTML = `<div class="p-2.5 rounded bg-slate-950 border border-slate-800 text-slate-400">Batch privi di metadati <code>sequence_num</code> / <code>batch_hash</code>.</div>`;
+        return;
+      }
+
+      let html = "";
+      let gapsCount = 0;
+      let missingTotal = 0;
+      let brokenLinks = 0;
+
+      for (let i = 0; i < sequencedBatches.length; i++) {
+        const curr = sequencedBatches[i];
+        const seq = curr.sequence_num;
+        const effectiveRoot = curr.merkle_root || computedBatchRoots[curr.batch_id] || onChainRootCache[curr.batch_id] || "";
+
+        let selfHashValid = false;
+        if (effectiveRoot && curr.prev_batch_hash && curr.batch_hash) {
+          const expectedBatchHash = MerkleEngine.computeBatchChainHash(effectiveRoot, curr.prev_batch_hash, curr.batch_id, seq);
+          selfHashValid = (expectedBatchHash.toLowerCase() === curr.batch_hash.toLowerCase());
+        }
+
+        if (i > 0) {
+          const prev = sequencedBatches[i - 1];
+          const delta = seq - prev.sequence_num;
+
+          if (delta === 1) {
+            const linkMatch = (curr.prev_batch_hash && prev.batch_hash && curr.prev_batch_hash.toLowerCase() === prev.batch_hash.toLowerCase());
+            if (!linkMatch) {
+              brokenLinks++;
+              html += `
+                <div class="p-2.5 rounded-lg bg-rose-950/60 border border-rose-700 text-rose-200 flex items-center justify-between">
+                  <div>
+                    <b>🚨 ROTTURA CRITTOGRAFICA CATENA tra Batch #${prev.sequence_num} e Batch #${seq}</b>
+                    <div class="text-[11px] text-rose-300 mt-0.5">Il <code>prev_batch_hash</code> del Batch #${seq} non combacia con il <code>batch_hash</code> del Batch #${prev.sequence_num}.</div>
+                  </div>
+                  <span class="px-2 py-0.5 rounded bg-rose-900 text-rose-200 text-[10px] font-bold">CHAIN BROKEN &cross;</span>
+                </div>
+              `;
+            }
+          } else if (delta > 1) {
+            gapsCount++;
+            const missingNums = [];
+            for (let m = prev.sequence_num + 1; m < seq; m++) missingNums.push(`#${m}`);
+            missingTotal += missingNums.length;
+
+            html += `
+              <div class="p-2.5 rounded-lg bg-amber-950/50 border border-amber-600/70 text-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <b>⚠️ GAP RILEVATO: ${missingNums.length === 1 ? "Manca il Batch " + missingNums[0] : "Mancano i Batch " + missingNums.join(", ")}</b>
+                  <div class="text-[11px] text-amber-300/90 mt-0.5">Salto da <b>#${prev.sequence_num}</b> a <b>#${seq}</b>.</div>
+                </div>
+                <span class="px-2 py-0.5 rounded bg-amber-900/80 border border-amber-600 text-amber-200 text-[10px] font-bold whitespace-nowrap">MANCA ${missingNums.join(", ")}</span>
+              </div>
+            `;
+          }
+        } else if (seq > 1) {
+          html += `
+            <div class="p-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-400 flex items-center justify-between">
+              <span>ℹ️ Finestra di audit parziale: analisi iniziata dal <b>Batch #${seq}</b>.</span>
+              <span class="text-[10px] text-slate-500">PARTIAL WINDOW</span>
+            </div>
+          `;
+        }
+
+        const onChainRoot = onChainRootCache[curr.batch_id];
+        const isAnchored = (onChainRoot && onChainRoot !== ethers.ZeroHash);
+        const txProof = onChainTxCache[curr.batch_id];
+
+        let linkStatusText = (seq === 1) ? "GENESIS (#1)" : "LINKED";
+        if (i > 0 && sequencedBatches[i - 1].sequence_num === seq - 1) {
+          linkStatusText = (curr.prev_batch_hash.toLowerCase() === sequencedBatches[i - 1].batch_hash.toLowerCase())
+            ? `CONCATENATO A #${seq - 1} &check;`
+            : `LINK ROTTO CON #${seq - 1} &cross;`;
+        } else if (i > 0 && sequencedBatches[i - 1].sequence_num < seq - 1) {
+          linkStatusText = `DOPO GAP (Attende #${seq - 1})`;
+        }
+
+        const onChainProofHtml = txProof
+          ? `<a href="https://sepolia.arbiscan.io/tx/${txProof.txHash}" target="_blank" class="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-950 hover:bg-indigo-900 text-indigo-300 border border-indigo-700 transition">TX L2 #${txProof.blockNumber} (${new Date(txProof.timestamp * 1000).toLocaleTimeString()}) &nearr;</a>`
+          : (isAnchored
+              ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">ROOT ON-CHAIN &check;</span>`
+              : `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-950 text-rose-300 border border-rose-800">NON TROVATO ON-CHAIN &cross;</span>`);
+
+        html += `
+          <div class="p-2.5 rounded-lg bg-slate-950/90 border ${selfHashValid && isAnchored ? "border-emerald-800/50" : "border-rose-800/60"} flex flex-wrap items-center justify-between gap-2">
+            <div class="space-y-0.5">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="px-2 py-0.5 rounded bg-sky-950 border border-sky-700 text-sky-300 font-bold">Batch #${seq}</span>
+                <span class="text-slate-300">ID: <code class="text-sky-300">${curr.batch_id.slice(0, 8)}...</code></span>
+                <button onclick="copyToClipboard('${curr.batch_hash}', this)" class="text-[10px] bg-slate-800 hover:bg-slate-700 px-1.5 py-0.5 rounded text-slate-300" title="Copia BatchHash">📋 BatchHash</button>
+              </div>
+              <div class="text-[11px] text-slate-400">
+                PrevHash: <code class="text-slate-300">${curr.prev_batch_hash ? curr.prev_batch_hash.slice(0, 14) + "..." : "N/D"}</code>
+                &rarr; BatchHash: <code class="text-emerald-300">${curr.batch_hash ? curr.batch_hash.slice(0, 14) + "..." : "N/D"}</code>
+              </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-1.5">
+              ${onChainProofHtml}
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${selfHashValid ? "bg-emerald-950 text-emerald-300 border border-emerald-800" : "bg-rose-950 text-rose-300 border border-rose-800"}">
+                ${selfHashValid ? "BATCH HASH OK &check;" : "BATCH HASH FAIL &cross;"}
+              </span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${linkStatusText.includes("ROTTO") ? "bg-rose-950 text-rose-300 border border-rose-800" : (linkStatusText.includes("GAP") ? "bg-amber-950 text-amber-300 border border-amber-700" : "bg-slate-800 text-sky-300 border border-slate-700")}">
+                ${linkStatusText}
+              </span>
+            </div>
+          </div>
+        `;
+      }
+
+      timeline.innerHTML = html;
+
+      if (brokenLinks > 0) {
+        summaryBadge.className = "text-[11px] font-mono px-2.5 py-0.5 rounded font-semibold bg-rose-950 text-rose-300 border border-rose-700";
+        summaryBadge.innerText = `CATENA COMPROMESSA (${brokenLinks} link corrotti)`;
+        metricChainText.innerText = "CORROTTA ✗";
+        metricChainText.className = "text-sm font-mono text-rose-400 mt-1 block font-bold";
+      } else if (gapsCount > 0) {
+        summaryBadge.className = "text-[11px] font-mono px-2.5 py-0.5 rounded font-semibold bg-amber-950 text-amber-300 border border-amber-700";
+        summaryBadge.innerText = `${sequencedBatches.length} BATCH VALIDI | ${missingTotal} BATCH MANCANTI`;
+        metricChainText.innerText = `GAP (${missingTotal} mancanti) ⚠️`;
+        metricChainText.className = "text-sm font-mono text-amber-400 mt-1 block font-bold";
+      } else {
+        const firstSeq = sequencedBatches[0].sequence_num;
+        const lastSeq = sequencedBatches[sequencedBatches.length - 1].sequence_num;
+        summaryBadge.className = "text-[11px] font-mono px-2.5 py-0.5 rounded font-semibold bg-emerald-950 text-emerald-300 border border-emerald-700";
+        summaryBadge.innerText = `CATENA CONTINUA E INTEGRA (#${firstSeq} → #${lastSeq}) ✓`;
+        metricChainText.innerText = `CONTINUA (#${firstSeq}→#${lastSeq}) ✓`;
+        metricChainText.className = "text-sm font-mono text-emerald-400 mt-1 block font-bold";
+      }
+    }
+
+    function populateSeqFilterDropdown(entries) {
+      const select = document.getElementById("filterSeqSelect");
+      const seqSet = new Set();
+      for (const e of entries) {
+        if (e.sequence_num !== null && e.sequence_num !== undefined) {
+          seqSet.add(e.sequence_num);
+        }
+      }
+      const sortedSeqs = Array.from(seqSet).sort((a, b) => a - b);
+      let optionsHtml = `<option value="ALL">Tutti i Batch (${sortedSeqs.length})</option>`;
+      for (const s of sortedSeqs) {
+        optionsHtml += `<option value="${s}">Batch #${s}</option>`;
+      }
+      select.innerHTML = optionsHtml;
+    }
+
+    function resetLogFilters() {
+      document.getElementById("filterSearchInput").value = "";
+      document.getElementById("filterStatusSelect").value = "ALL";
+      document.getElementById("filterSeqSelect").value = "ALL";
+      applyLogFilters();
+    }
+
+    function applyLogFilters() {
+      const searchQuery = document.getElementById("filterSearchInput").value.trim().toLowerCase();
+      const statusFilter = document.getElementById("filterStatusSelect").value;
+      const seqFilter = document.getElementById("filterSeqSelect").value;
+      const tbody = document.getElementById("batchTableBody");
+
+      const filtered = verifiedRowsModel.filter(row => {
+        if (statusFilter === "VALID" && !row.isMatch) return false;
+        if (statusFilter === "INVALID" && row.isMatch) return false;
+        if (seqFilter !== "ALL" && String(row.seqNum) !== seqFilter) return false;
+
+        if (searchQuery) {
+          const haystack = `${row.displayLogText} ${row.logIdFull} ${row.batchIdFull} ${row.timestamp}`.toLowerCase();
+          if (!haystack.includes(searchQuery)) return false;
+        }
+        return true;
+      });
+
+      document.getElementById("filteredRowsCounter").innerText = `Visualizzati ${filtered.length} di ${verifiedRowsModel.length} log`;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">Nessun log corrisponde ai filtri selezionati.</td></tr>`;
+        return;
+      }
+
+      let rowsHtml = "";
+      for (const row of filtered) {
+        const safeTitle = row.displayLogText.replace(/"/g, "&quot;");
+        const txProof = onChainTxCache[row.batchIdFull];
+        const txLinkHtml = txProof
+          ? `<a href="https://sepolia.arbiscan.io/tx/${txProof.txHash}" target="_blank" class="text-[10px] text-indigo-300 underline hover:text-indigo-200 block mt-0.5">Arbiscan TX &nearr;</a>`
+          : "";
+
+        rowsHtml += `
+          <tr class="${row.isMatch ? "hover:bg-slate-700/20" : "bg-rose-950/30 hover:bg-rose-950/40"} transition">
+            <td class="p-2 whitespace-nowrap">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${row.isMatch ? "bg-emerald-950 text-emerald-300 border border-emerald-800" : "bg-rose-950 text-rose-300 border border-rose-800"}">
+                ${row.statusLabel}
+              </span>
+            </td>
+            <td class="p-2 font-bold text-sky-300 whitespace-nowrap">${row.seqDisplay}</td>
+            <td class="p-2 text-slate-300">
+              <div>${row.timestamp}</div>
+              <div class="flex items-center gap-1 mt-0.5">
+                <span class="text-sky-300 font-mono">${row.logIdFull.slice(0, 8)}...</span>
+                <button onclick="copyToClipboard('${row.logIdFull}', this)" class="text-[9px] bg-slate-800 hover:bg-slate-700 px-1 py-0.5 rounded text-slate-300">📋</button>
+              </div>
+            </td>
+            <td class="p-2 ${row.isMatch ? "text-emerald-200" : "text-rose-300"} break-all max-w-md font-mono" title="${safeTitle}">${row.displayLogText}</td>
+            <td class="p-2 text-slate-400 font-mono">
+              <div class="flex items-center gap-1">
+                <span>${row.batchIdFull.slice(0, 8)}...</span>
+                <button onclick="copyToClipboard('${row.batchIdFull}', this)" class="text-[9px] bg-slate-800 hover:bg-slate-700 px-1 py-0.5 rounded text-slate-300">📋</button>
+              </div>
+              ${txLinkHtml}
+            </td>
+          </tr>
+        `;
+      }
+      tbody.innerHTML = rowsHtml;
+    }
+
+    async function verifyMerkleBatch(entries, batchesMap = {}) {
+      document.getElementById("batchSummaryBar").classList.remove("hidden");
+      document.getElementById("batchResultsContainer").classList.remove("hidden");
+      const tbody = document.getElementById("batchTableBody");
+      tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-400">Decifratura AES-256-GCM, verifica Merkle Root e riscontro TX su Arbitrum Sepolia...</td></tr>';
+
+      let valid = 0, tampered = 0;
+      verifiedRowsModel = [];
+      document.getElementById("batchTotalCount").innerText = entries.length;
+      document.getElementById("batchValidCount").innerText = "0";
+      document.getElementById("batchTamperedCount").innerText = "0";
+
+      const uniqueBatchIds = [...new Set(entries.map(e => e.batch_id).filter(Boolean))];
+      await fetchOnChainBatchProofs(uniqueBatchIds);
+
+      const aesKeyHex = document.getElementById("auditorAesKey").value.trim();
+      const rootCache = {};
+      const computedBatchRoots = {};
+
+      for (let i = 0; i < entries.length; i++) {
+        const entry = entries[i];
+        let isMatch = false;
+        let displayLogText = "";
+        let statusLabel = "MANOMESSO &cross;";
+
+        try {
+          let plaintextLog = entry.raw_log;
+          if (entry.encrypted && typeof entry.encrypted === "object") {
+            try {
+              plaintextLog = await decryptLogRecord(entry.encrypted, aesKeyHex);
+              displayLogText = plaintextLog;
+            } catch (decErr) {
+              displayLogText = `[🔒 CIFRATO / ERRORE AES: ${decErr.message || "Chiave errata"}]`;
+              statusLabel = (!aesKeyHex) ? "CHIAVE RICHIESTA 🔒" : "KEY / TAG FAIL &cross;";
+              throw decErr;
+            }
+          } else {
+            displayLogText = plaintextLog || "[Vuoto]";
+          }
+
+          if (!plaintextLog || !entry.proof || !entry.batch_id) throw new Error("Campi mancanti");
+
+          const computedLeaf = MerkleEngine.hashLeaf(plaintextLog);
+          const computedRoot = MerkleEngine.computeRoot(computedLeaf, entry.proof);
+          computedBatchRoots[entry.batch_id] = computedRoot;
+
+          if (!rootCache[entry.batch_id]) {
+            rootCache[entry.batch_id] = await contract.batchRoots(entry.batch_id);
+          }
+          const onChainRoot = rootCache[entry.batch_id];
+
+          if (onChainRoot && onChainRoot !== ethers.ZeroHash && onChainRoot.toLowerCase() === computedRoot.toLowerCase()) {
+            isMatch = true;
+            statusLabel = "INTEGRO &check;";
+          }
+        } catch (e) {
+          console.warn("Verifica record fallita:", e);
+        }
+
+        if (isMatch) valid++; else tampered++;
+
+        verifiedRowsModel.push({
+          isMatch,
+          statusLabel,
+          seqNum: entry.sequence_num,
+          seqDisplay: (entry.sequence_num !== null && entry.sequence_num !== undefined) ? `#${entry.sequence_num}` : "-",
+          timestamp: entry.timestamp,
+          logIdFull: String(entry.id),
+          displayLogText,
+          batchIdFull: String(entry.batch_id)
+        });
+
+        document.getElementById("batchValidCount").innerText = valid;
+        document.getElementById("batchTamperedCount").innerText = tampered;
+        if (i % 6 === 0) await new Promise(r => setTimeout(r, 15));
+      }
+
+      populateSeqFilterDropdown(entries);
+      applyLogFilters();
+      evaluateBatchHashChain(batchesMap, rootCache, computedBatchRoots);
+      document.getElementById("batchFileInput").value = "";
+    }
+  </script>
+</body>
+</html>

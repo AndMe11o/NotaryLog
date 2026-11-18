@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Provisioning & Gas Monitor - L2 Merkle Sentinel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.2/ethers.umd.min.js"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-6">
+  <div class="max-w-5xl mx-auto space-y-6">
+
+    <!-- Navbar condivisa -->
+    <div id="appNavbar"></div>
+
+    <!-- MONITOR SALDO ETH SEPOLIA DEI NODI REGISTRATI -->
+    <div class="bg-slate-800 p-6 rounded-xl border border-sky-500/30 space-y-4 shadow-lg">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-700 pb-4">
+        <div>
+          <h2 class="text-lg font-bold text-sky-400 flex items-center gap-2">
+            <span>⛽</span> Monitoraggio Saldo ETH Sepolia &amp; Autonomia Gas
+          </h2>
+          <p class="text-xs text-slate-400 mt-1">
+            Verifica la disponibilità di Sepolia ETH sui wallet EOA dei nodi registrati per evitare interruzioni negli ancoraggi L2.
+          </p>
+        </div>
+        <button onclick="loadRegisteredHostsBalances()" class="text-xs bg-slate-700 hover:bg-slate-600 px-3.5 py-2 rounded-lg font-semibold transition">
+          🔄 Aggiorna Saldi
+        </button>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs text-slate-300">
+          <thead class="bg-slate-900 text-slate-400 uppercase">
+            <tr>
+              <th class="p-2.5">Nodo / Hostname</th>
+              <th class="p-2.5">Indirizzo EOA</th>
+              <th class="p-2.5">Stato Contratto</th>
+              <th class="p-2.5">Saldo ETH Sepolia</th>
+              <th class="p-2.5 text-right">Autonomia Gas</th>
+            </tr>
+          </thead>
+          <tbody id="hostBalancesTableBody" class="divide-y divide-slate-700 font-mono">
+            <tr><td colspan="5" class="p-4 text-center text-slate-500">Lettura saldi on-chain in corso...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PANNELLO PROVISIONING ADMIN -->
+    <div class="bg-slate-800 p-6 rounded-xl border border-amber-500/40 space-y-5 shadow-lg">
+      <div class="border-b border-slate-700 pb-4">
+        <h2 class="text-lg font-bold text-amber-400 flex items-center gap-2">
+          <span>🛡️</span> Onboarding &amp; Provisioning Nuovo Nodo (Solo Owner)
+        </h2>
+        <p class="text-xs text-slate-400 mt-1">
+          Autorizza l'indirizzo EOA di una nuova VPS sullo Smart Contract e genera la chiave AES-256-GCM da iniettare nello slot TPM <code class="text-amber-300">0x1500019</code>.
+        </p>
+      </div>
+
+      <!-- Dati Host -->
+      <div class="space-y-2">
+        <span class="block text-xs font-bold text-slate-300 uppercase tracking-wider">1. Identità del Nodo su Arbitrum Sepolia</span>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <input
+            id="hostAddr"
+            oninput="previewNewHostBalance()"
+            placeholder="0x Indirizzo Host (EOA)"
+            class="bg-slate-900 border border-slate-700 p-2.5 rounded-lg text-white focus:outline-none focus:border-amber-400 font-mono text-xs"
+          />
+          <input id="hostName" placeholder="Hostname (es. hardened-v5)" class="bg-slate-900 border border-slate-700 p-2.5 rounded-lg text-white focus:outline-none focus:border-amber-400 text-xs" />
+          <input id="hostIp" placeholder="Indirizzo IP (es. 64.225.77.211)" class="bg-slate-900 border border-slate-700 p-2.5 rounded-lg text-white focus:outline-none focus:border-amber-400 font-mono text-xs" />
+        </div>
+        <div id="newHostBalancePreview" class="hidden text-xs font-mono px-3 py-2 rounded-lg bg-slate-950 border border-slate-800"></div>
+      </div>
+
+      <!-- Generatore Chiave AES -->
+      <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-700 space-y-3">
+        <div class="flex flex-wrap justify-between items-center gap-2">
+          <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">
+            2. Chiave Cifratura Log (AES-256-GCM per TPM <code class="text-amber-300">0x1500019</code>)
+          </span>
+          <button type="button" onclick="generateHostAesKey()" class="text-xs bg-sky-700 hover:bg-sky-600 text-white px-3 py-1.5 rounded-lg font-semibold transition">
+            🎲 Genera Nuova Chiave AES-256
+          </button>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <input id="generatedAesKey" readonly placeholder="Clicca 'Genera Nuova Chiave AES-256' per creare il segreto a 256-bit" class="flex-1 min-w-[240px] bg-slate-950 border border-slate-800 p-2.5 rounded-lg text-xs text-amber-300 font-mono" />
+          <button type="button" onclick="copyProvisioningSnippet(this)" class="text-xs bg-slate-700 hover:bg-slate-600 px-3.5 py-2 rounded-lg text-slate-200 font-semibold transition whitespace-nowrap">
+            📋 Copia Snippet Bash TPM
+          </button>
+        </div>
+
+        <p class="text-[11px] text-slate-500">
+          La chiave generata viene salvata anche nella sessione corrente così puoi passare subito alla pagina <b>Verifica Forense</b> senza doverla reincollare.
+        </p>
+      </div>
+
+      <div class="pt-2">
+        <button onclick="registerHost()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-lg text-xs font-bold transition shadow">
+          ✓ Conferma Registrazione Host On-Chain
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    window.addEventListener("DOMContentLoaded", async () => {
+      const ok = await requireAuth("admin", { adminOnly: true });
+      if (ok) {
+        await loadRegisteredHostsBalances();
+      }
+    });
+
+    function formatGasHealthBadge(ethValue) {
+      if (ethValue <= 0.0005) {
+        return `<span class="px-2 py-0.5 rounded bg-rose-950 border border-rose-700 text-rose-300 text-[10px] font-bold">🚨 GAS ESAURITO</span>`;
+      }
+      if (ethValue < 0.005) {
+        return `<span class="px-2 py-0.5 rounded bg-amber-950 border border-amber-600 text-amber-300 text-[10px] font-bold">⚠️ IN RISERVA</span>`;
+      }
+      return `<span class="px-2 py-0.5 rounded bg-emerald-950 border border-emerald-700 text-emerald-300 text-[10px] font-bold">✓ OPERATIVO</span>`;
+    }
+
+    async function loadRegisteredHostsBalances() {
+      const tbody = document.getElementById("hostBalancesTableBody");
+      tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-400">Interrogazione RPC Arbitrum Sepolia...</td></tr>';
+
+      try {
+        const addresses = await contract.getAllHosts();
+        if (addresses.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-500">Nessun host registrato sullo smart contract.</td></tr>';
+          return;
+        }
+
+        let rows = "";
+        for (const addr of addresses) {
+          const [hostData, balanceWei] = await Promise.all([
+            contract.registeredHosts(addr),
+            provider.getBalance(addr)
+          ]);
+
+          const ethFormatted = Number(ethers.formatEther(balanceWei));
+          const ethDisplay = ethFormatted.toFixed(6) + " ETH";
+          const statusBadge = hostData.isActive
+            ? '<span class="px-2 py-0.5 rounded bg-emerald-900/70 text-emerald-300 text-[10px] font-bold">Attivo</span>'
+            : '<span class="px-2 py-0.5 rounded bg-rose-900/70 text-rose-300 text-[10px] font-bold">Revocato</span>';
+
+          rows += `
+            <tr class="hover:bg-slate-700/30 transition">
+              <td class="p-2.5 font-sans font-semibold text-white">
+                ${hostData.hostname}
+                <span class="block text-[10px] font-mono text-slate-400">${hostData.ipAddress}</span>
+              </td>
+              <td class="p-2.5 text-sky-300">
+                <div class="flex items-center gap-1.5">
+                  <span>${addr.slice(0, 8)}...${addr.slice(-6)}</span>
+                  <button onclick="copyToClipboard('${addr}', this)" class="text-[10px] bg-slate-800 hover:bg-slate-700 px-1 py-0.5 rounded text-slate-300" title="Copia Indirizzo">📋</button>
+                </div>
+              </td>
+              <td class="p-2.5">${statusBadge}</td>
+              <td class="p-2.5 font-bold ${ethFormatted < 0.005 ? "text-amber-300" : "text-emerald-300"}">${ethDisplay}</td>
+              <td class="p-2.5 text-right">${formatGasHealthBadge(ethFormatted)}</td>
+            </tr>
+          `;
+        }
+        tbody.innerHTML = rows;
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-rose-400">Errore lettura saldi: ${err.message}</td></tr>`;
+      }
+    }
+
+    async function previewNewHostBalance() {
+      const addr = document.getElementById("hostAddr").value.trim();
+      const preview = document.getElementById("newHostBalancePreview");
+
+      if (!ethers.isAddress(addr)) {
+        preview.classList.add("hidden");
+        return;
+      }
+
+      preview.classList.remove("hidden");
+      preview.innerHTML = `<span class="text-slate-400">Controllo saldo Sepolia ETH per ${addr}...</span>`;
+
+      try {
+        const balWei = await provider.getBalance(addr);
+        const ethVal = Number(ethers.formatEther(balWei));
+        preview.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-slate-300">Saldo rilevato sul wallet candidato: <b class="text-sky-300">${ethVal.toFixed(6)} ETH</b></span>
+            ${formatGasHealthBadge(ethVal)}
+          </div>
+        `;
+      } catch (_) {
+        preview.classList.add("hidden");
+      }
+    }
+
+    function generateHostAesKey() {
+      const bytes = new Uint8Array(32);
+      window.crypto.getRandomValues(bytes);
+      const hexKey = Array.from(bytes).map(b => b.toString(16).padStart(2, "0")).join("");
+      document.getElementById("generatedAesKey").value = hexKey;
+      sessionStorage.setItem("sentinel_aes_key", hexKey);
+    }
+
+    function copyProvisioningSnippet(btn) {
+      const key = document.getElementById("generatedAesKey").value.trim();
+      if (!key) return alert("Clicca prima su 'Genera Nuova Chiave AES-256'!");
+
+      const snippet = `export TPM2TOOLS_TCTI="swtpm:port=2321"\n` +
+        `tpm2_nvundefine 0x1500019 -C o 2>/dev/null || true\n` +
+        `tpm2_nvdefine 0x1500019 -C o -s 32 -a "ownerread|ownerwrite"\n` +
+        `./venv/bin/python3 -c "open('/tmp/aes.bin','wb').write(bytes.fromhex('${key}'))"\n` +
+        `tpm2_nvwrite 0x1500019 -C o -i /tmp/aes.bin && rm -f /tmp/aes.bin\n` +
+        `echo '[+] Chiave AES configurata con successo nello slot TPM 0x1500019!'`;
+
+      copyToClipboard(snippet, btn);
+    }
+
+    async function registerHost() {
+      try {
+        const addr = document.getElementById("hostAddr").value.trim();
+        const name = document.getElementById("hostName").value.trim();
+        const ip = document.getElementById("hostIp").value.trim();
+        if (!addr || !name || !ip) return alert("Compila tutti i campi!");
+
+        const tx = await contract.registerHost(addr, name, ip);
+        alert("Transazione inviata: " + tx.hash);
+        await tx.wait();
+        alert("Host registrato con successo su Arbitrum Sepolia!");
+
+        document.getElementById("hostAddr").value = "";
+        document.getElementById("hostName").value = "";
+        document.getElementById("hostIp").value = "";
+        document.getElementById("newHostBalancePreview").classList.add("hidden");
+        await loadRegisteredHostsBalances();
+      } catch (err) {
+        alert("Errore: " + (err.reason || err.message));
+      }
+    }
+  </script>
+</body>
+</html>
